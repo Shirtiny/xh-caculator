@@ -1,0 +1,3493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>javascript数值计算器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- 配置Tailwind自定义主题 -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#6D28D9",
+              secondary: "#F59E0B",
+              dark: "#1E1B4B",
+              light: "#EDE9FE",
+              accent: "#7C3AED",
+              "accent-light": "#A78BFA",
+              "neutral-dark": "#1F2937",
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+      @layer utilities {
+        .content-auto {
+          content-visibility: auto;
+        }
+        .text-shadow-glow {
+          text-shadow: 0 0 8px rgba(124, 58, 237, 0.6);
+        }
+        .transition-all-300 {
+          transition: all 300ms ease-in-out;
+        }
+        .modal-backdrop {
+          background-color: rgba(0, 0, 0, 0.7);
+        }
+        .modal-content {
+          background: linear-gradient(135deg, #1e1b4b 0%, #1f2937 100%);
+        }
+      }
+    </style>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body
+    class="bg-gradient-to-br from-dark to-neutral-dark text-light min-h-screen font-sans"
+  >
+    <div class="container mx-auto px-3 py-4 max-w-7xl">
+      <!-- 配置管理区域 -->
+      <div
+        class="bg-neutral-dark/60 rounded-lg p-3 border border-accent/20 mb-4"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-2 items-center">
+          <div class="md:col-span-4">
+            <h2 class="text-md font-semibold mb-1 flex items-center">
+              <i class="fa fa-save text-secondary mr-2"></i>配置管理
+            </h2>
+            <div class="flex items-center">
+              <select
+                id="configSelect"
+                class="w-full bg-dark/50 border border-accent/30 rounded px-2 py-1 text-light text-sm"
+              >
+                <option value="default">默认配置</option>
+                <option value="new">新建配置...</option>
+              </select>
+              <button
+                id="deleteConfigBtn"
+                class="ml-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded"
+              >
+                <i class="fa fa-trash"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="md:col-span-4">
+            <label class="block text-xs text-light/70 mb-1">配置名称</label>
+            <input
+              type="text"
+              id="configName"
+              class="w-full bg-dark/50 border border-accent/30 rounded px-2 py-1 text-light text-sm"
+              placeholder="输入配置名称"
+            />
+          </div>
+
+          <div class="md:col-span-4 flex space-x-2">
+            <button
+              id="saveConfigBtn"
+              class="flex-1 bg-gradient-to-r from-primary to-accent hover:from-accent hover:to-primary text-white font-medium py-2 px-3 rounded transition-all-300 text-sm"
+            >
+              <i class="fa fa-save mr-1"></i>保存配置
+            </button>
+            <button
+              id="defaultConfigBtn"
+              class="flex-1 bg-secondary hover:bg-secondary/80 text-dark font-medium py-2 px-3 rounded transition-all-300 text-sm"
+            >
+              <i class="fa fa-refresh mr-1"></i>恢复默认
+            </button>
+            <!-- 添加数据对比按钮 -->
+            <button
+              id="compareConfigBtn"
+              class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-3 rounded transition-all-300 text-sm"
+            >
+              <i class="fa fa-exchange mr-1"></i>数据对比
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 主要内容区 -->
+      <main class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <!-- 左侧：属性面板 (8列) -->
+        <section class="lg:col-span-8 space-y-4">
+          <!-- 技能乘区 -->
+          <div
+            class="bg-neutral-dark/60 rounded-lg p-3 border border-accent/20"
+          >
+            <h2 class="text-lg font-semibold mb-2 flex items-center">
+              <i class="fa fa-bolt text-secondary mr-2"></i>技能乘区属性
+            </h2>
+            <div
+              class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 text-sm"
+            >
+              <div>
+                <label class="block text-xs text-light/70 mb-1">物理攻击</label>
+                <input
+                  type="number"
+                  id="physAtk"
+                  class="w-full bg-dark/50 border border-accent/30 rounded px-2 py-1 text-light text-sm"
+                  min="0"
+                  max="999999"
+                  value="1000"
+                />
+              </div>
+              <div>
+                <label class="block text-xs text-light/70 mb-1">元素攻击</label>
+                <input
+                  type="number"
+                  id="elemAtk"
+                  class="w-full bg-dark/50 border border-accent/30 rounded px-2 py-1 text-light text-sm"
+                  min="0"
+                  max="999999"
+                  value="50"
+                />
+              </div>
+              <div>
+                <label class="block text-xs text-light/70 mb-1">精炼攻击</label>
+                <input
+                  type="number"
+                  id="refineAtk"
+                  class="w-full bg-dark/50 border border-accent/30 rounded px-2 py-1 text-light text-sm"
+                  min="0"
+                  max="999999"
+                  value="0"
+                />
+              </div>
+              <div>
+                <label class="block text-xs text-light/70 mb-1">精通%</label>
+                <input
+                  type="number"
+                  id="mastery"
+                  class="w-full bg-dark/50 border border-accent/30 rounded px-2 py-1 text-light text-sm"
+                  min="6"
+                  max="9999.99"
+                  step="0.01"
+                  value="6"
+                />
+              </div>
+              <div>
+                <label class="block text-xs text-light/70 mb-1">雷之印</label>
+                <input
+                  type="number"
+                  id="thunderSeal"
+                  class="w-full bg-dark/50 border border-accent/30 rounded px-2 py-1 text-light text-sm"
+                  min="0"
+                  max="6"
+                  value="6"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- 公共乘区 -->
+          <div
+            class="bg-neutral-dark/60 rounded-lg p-3 border border-accent/20"
+          >
+            <h2 class="text-lg font-semibold mb-2 flex items-center">
+              <i class="fa fa-shield text-secondary mr-2"></i>公共乘区属性
+            </h2>
+            <div
+              class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 text-sm"
+            >
+              <div>
+                <label class="block text-xs text-light/70 mb-1"
+                  >近距离伤害%</label
+                >
+                <input
+                  type="number"
+                  id="meleeDmg"
+                  class="w-full bg-dark/50 border border-accent/30 rounded px-2 py-1 text-light text-sm"
+                  min="0"
+                  max="9999.99"
+                  step="0.01"
+                  value="0"
+                />
+              </div>
+              <div>
+                <label class="block text-xs text-light/70 mb-1"
+                  >首领伤害%</label
+                >
+                <input
+                  type="number"
+                  id="bossDmg"
+                  class="w-full bg-dark/50 border border-accent/30 rounded px-2 py-1 text-light text-sm"
+                  min="0"
+                  max="9999.99"
+                  step="0.01"
+                  value="0"
+                />
+              </div>
+              <div>
+                <label class="block text-xs text-light/70 mb-1"
+                  >易伤伤害%</label
+                >
+                <input
+                  type="number"
+                  id="vulnDmg"
+                  class="w-full bg-dark/50 border border-accent/30 rounded px-2 py-1 text-light text-sm"
+                  min="0"
+                  max="9999.99"
+                  step="0.01"
+                  value="0"
+                />
+              </div>
+              <div>
+                <label class="block text-xs text-light/70 mb-1"
+                  >技能伤害%</label
+                >
+                <input
+                  type="number"
+                  id="skillDmg"
+                  class="w-full bg-dark/50 border border-accent/30 rounded px-2 py-1 text-light text-sm"
+                  min="0"
+                  max="9999.99"
+                  step="0.01"
+                  value="0"
+                />
+              </div>
+              <div>
+                <label class="block text-xs text-light/70 mb-1"
+                  >物理伤害%</label
+                >
+                <input
+                  type="number"
+                  id="physDmg"
+                  class="w-full bg-dark/50 border border-accent/30 rounded px-2 py-1 text-light text-sm"
+                  min="0"
+                  max="9999.99"
+                  step="0.01"
+                  value="0"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- 独立乘区 -->
+          <div
+            class="bg-neutral-dark/60 rounded-lg p-3 border border-accent/20"
+          >
+            <h2 class="text-lg font-semibold mb-2 flex items-center">
+              <i class="fa fa-star text-secondary mr-2"></i>独立乘区属性
+            </h2>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
+              <div>
+                <label class="block text-xs text-light/70 mb-1">全能%</label>
+                <input
+                  type="number"
+                  id="allRound"
+                  class="w-full bg-dark/50 border border-accent/30 rounded px-2 py-1 text-light text-sm"
+                  min="0"
+                  max="9999.99"
+                  step="0.01"
+                  value="0"
+                />
+              </div>
+              <div>
+                <label class="block text-xs text-light/70 mb-1"
+                  >元素加成%</label
+                >
+                <input
+                  type="number"
+                  id="elemBonus"
+                  class="w-full bg-dark/50 border border-accent/30 rounded px-2 py-1 text-light text-sm"
+                  min="0"
+                  max="9999.99"
+                  step="0.01"
+                  value="0"
+                />
+              </div>
+              <div>
+                <label class="block text-xs text-light/70 mb-1"
+                  >暴击伤害%</label
+                >
+                <input
+                  type="number"
+                  id="critDmg"
+                  class="w-full bg-dark/50 border border-accent/30 rounded px-2 py-1 text-light text-sm"
+                  min="50"
+                  max="9999.99"
+                  step="0.01"
+                  value="55"
+                />
+              </div>
+              <div>
+                <label class="block text-xs text-light/70 mb-1">暴击%</label>
+                <input
+                  type="number"
+                  id="critRate"
+                  class="w-full bg-dark/50 border border-accent/30 rounded px-2 py-1 text-light text-sm"
+                  min="5"
+                  max="9999.99"
+                  step="0.01"
+                  value="5"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- 技能选择 -->
+          <div
+            class="bg-neutral-dark/60 rounded-lg p-3 border border-accent/20"
+          >
+            <h2 class="text-lg font-semibold mb-2 flex items-center">
+              <i class="fa fa-sword text-secondary mr-2"></i>技能选择
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
+              <div
+                class="skill-option cursor-pointer bg-dark/50 border border-accent/30 rounded p-2 hover:border-accent transition-all-300 active-skill"
+              >
+                <h3 class="font-medium text-secondary text-sm">居合斩</h3>
+                <div class="grid grid-cols-2 gap-1 mt-1">
+                  <div>
+                    <label class="block text-xs text-light/70 mb-0.5"
+                      >倍率%</label
+                    >
+                    <input
+                      type="number"
+                      id="skill1Multi"
+                      class="w-full bg-dark/70 border border-accent/20 rounded px-1.5 py-0.5 text-xs text-light"
+                      min="0"
+                      max="9999.99"
+                      step="0.01"
+                      value="210"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-xs text-light/70 mb-0.5"
+                      >附加伤害</label
+                    >
+                    <input
+                      type="number"
+                      id="skill1Add"
+                      class="w-full bg-dark/70 border border-accent/20 rounded px-1.5 py-0.5 text-xs text-light"
+                      min="0"
+                      max="999999"
+                      value="600"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="skill-option cursor-pointer bg-dark/50 border border-accent/30 rounded p-2 hover:border-accent transition-all-300"
+              >
+                <h3 class="font-medium text-secondary text-sm">一闪</h3>
+                <div class="grid grid-cols-2 gap-1 mt-1">
+                  <div>
+                    <label class="block text-xs text-light/70 mb-0.5"
+                      >倍率%</label
+                    >
+                    <input
+                      type="number"
+                      id="skill2Multi"
+                      class="w-full bg-dark/70 border border-accent/20 rounded px-1.5 py-0.5 text-xs text-light"
+                      min="0"
+                      max="9999.99"
+                      step="0.01"
+                      value="490"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-xs text-light/70 mb-0.5"
+                      >附加伤害</label
+                    >
+                    <input
+                      type="number"
+                      id="skill2Add"
+                      class="w-full bg-dark/70 border border-accent/20 rounded px-1.5 py-0.5 text-xs text-light"
+                      min="0"
+                      max="999999"
+                      value="1400"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="skill-option cursor-pointer bg-dark/50 border border-accent/30 rounded p-2 hover:border-accent transition-all-300"
+              >
+                <h3 class="font-medium text-secondary text-sm">自定义</h3>
+                <div class="grid grid-cols-2 gap-1 mt-1">
+                  <div>
+                    <label class="block text-xs text-light/70 mb-0.5"
+                      >倍率%</label
+                    >
+                    <input
+                      type="number"
+                      id="skill3Multi"
+                      class="w-full bg-dark/70 border border-accent/20 rounded px-1.5 py-0.5 text-xs text-light"
+                      min="0"
+                      max="9999.99"
+                      step="0.01"
+                      value="100"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-xs text-light/70 mb-0.5"
+                      >附加伤害</label
+                    >
+                    <input
+                      type="number"
+                      id="skill3Add"
+                      class="w-full bg-dark/70 border border-accent/20 rounded px-1.5 py-0.5 text-xs text-light"
+                      min="0"
+                      max="999999"
+                      value="0"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <input type="hidden" id="activeSkill" value="1" />
+          </div>
+
+          <!-- 天赋系统 - 已优化排序，默认启用的天赋放在前面 -->
+          <div
+            class="bg-neutral-dark/60 rounded-lg p-3 border border-accent/20"
+          >
+            <h2 class="text-lg font-semibold mb-2 flex items-center">
+              <i class="fa fa-gem text-secondary mr-2"></i>天赋系统
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+              <!-- 默认启用的天赋 - 放在前面 -->
+              <div
+                class="天赋-item flex items-center justify-between bg-dark/30 rounded p-2 border border-accent/10"
+              >
+                <div>
+                  <h3 class="font-medium text-sm">居合流</h3>
+                  <p class="text-xs text-light/70">
+                    居合斩+雷之印=6时，技能伤害+12%
+                  </p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    id="talent1"
+                    class="sr-only peer"
+                    checked
+                  />
+                  <div
+                    class="w-9 h-5 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"
+                  ></div>
+                </label>
+              </div>
+
+              <div
+                class="天赋-item flex items-center justify-between bg-dark/30 rounded p-2 border border-accent/10"
+              >
+                <div>
+                  <h3 class="font-medium text-sm">居合天授·暴斩</h3>
+                  <p class="text-xs text-light/70">
+                    居合斩时，暴击+22%，超额转化为暴伤
+                  </p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    id="talent2"
+                    class="sr-only peer"
+                    checked
+                  />
+                  <div
+                    class="w-9 h-5 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"
+                  ></div>
+                </label>
+              </div>
+
+              <div
+                class="天赋-item flex items-center justify-between bg-dark/30 rounded p-2 border border-accent/10"
+              >
+                <div>
+                  <h3 class="font-medium text-sm">疾电破袭</h3>
+                  <p class="text-xs text-light/70">雷之印增伤从25%变为28%</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    id="talent3"
+                    class="sr-only peer"
+                    checked
+                  />
+                  <div
+                    class="w-9 h-5 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"
+                  ></div>
+                </label>
+              </div>
+
+              <div
+                class="天赋-item flex items-center justify-between bg-dark/30 rounded p-2 border border-accent/10"
+              >
+                <div>
+                  <h3 class="font-medium text-sm">雷印亲和</h3>
+                  <p class="text-xs text-light/70">
+                    每1个雷之印，元素加成+1.5%
+                  </p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    id="talent10"
+                    class="sr-only peer"
+                    checked
+                  />
+                  <div
+                    class="w-9 h-5 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"
+                  ></div>
+                </label>
+              </div>
+
+              <!-- 默认不启用的天赋 - 放在后面 -->
+              <div
+                class="天赋-item flex items-center justify-between bg-dark/30 rounded p-2 border border-accent/10"
+              >
+                <div>
+                  <h3 class="font-medium text-sm">雷咒</h3>
+                  <p class="text-xs text-light/70">每层易伤+2%，可叠4层</p>
+                </div>
+                <div class="flex items-center">
+                  <label
+                    class="relative inline-flex items-center cursor-pointer mr-1"
+                  >
+                    <input type="checkbox" id="talent4" class="sr-only peer" />
+                    <div
+                      class="w-9 h-5 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"
+                    ></div>
+                  </label>
+                  <div id="talent4LevelContainer" class="hidden">
+                    <input
+                      type="number"
+                      id="talent4Level"
+                      class="bg-dark/70 border border-accent/20 rounded px-1.5 py-0.5 text-xs text-light w-14"
+                      min="1"
+                      max="4"
+                      value="4"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="天赋-item flex items-center justify-between bg-dark/30 rounded p-2 border border-accent/10"
+              >
+                <div>
+                  <h3 class="font-medium text-sm">瞬斩</h3>
+                  <p class="text-xs text-light/70">每层怪物防御-6%，可叠5层</p>
+                </div>
+                <div class="flex items-center">
+                  <label
+                    class="relative inline-flex items-center cursor-pointer mr-1"
+                  >
+                    <input type="checkbox" id="talent5" class="sr-only peer" />
+                    <div
+                      class="w-9 h-5 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"
+                    ></div>
+                  </label>
+                  <div id="talent5LevelContainer" class="hidden">
+                    <input
+                      type="number"
+                      id="talent5Level"
+                      class="bg-dark/70 border border-accent/20 rounded px-1.5 py-0.5 text-xs text-light w-14"
+                      min="1"
+                      max="5"
+                      value="5"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="天赋-item flex items-center justify-between bg-dark/30 rounded p-2 border border-accent/10"
+              >
+                <div>
+                  <h3 class="font-medium text-sm">破斩</h3>
+                  <p class="text-xs text-light/70">
+                    居合斩暴击时，怪物防御×0.7
+                  </p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="talent6" class="sr-only peer" />
+                  <div
+                    class="w-9 h-5 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"
+                  ></div>
+                </label>
+              </div>
+
+              <div
+                class="天赋-item flex items-center justify-between bg-dark/30 rounded p-2 border border-accent/10"
+              >
+                <div>
+                  <h3 class="font-medium text-sm">雷返</h3>
+                  <p class="text-xs text-light/70">元素加成+10%</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="talent7" class="sr-only peer" />
+                  <div
+                    class="w-9 h-5 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"
+                  ></div>
+                </label>
+              </div>
+
+              <div
+                class="天赋-item flex items-center justify-between bg-dark/30 rounded p-2 border border-accent/10"
+              >
+                <div>
+                  <h3 class="font-medium text-sm">暴裂</h3>
+                  <p class="text-xs text-light/70">暴击伤害+10%</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="talent8" class="sr-only peer" />
+                  <div
+                    class="w-9 h-5 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"
+                  ></div>
+                </label>
+              </div>
+
+              <div
+                class="天赋-item flex items-center justify-between bg-dark/30 rounded p-2 border border-accent/10"
+              >
+                <div>
+                  <h3 class="font-medium text-sm">决斗意识</h3>
+                  <p class="text-xs text-light/70">敌人>80%血量时，易伤+20%</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="talent11" class="sr-only peer" />
+                  <div
+                    class="w-9 h-5 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"
+                  ></div>
+                </label>
+              </div>
+
+              <div
+                class="天赋-item flex items-center justify-between bg-dark/30 rounded p-2 border border-accent/10"
+              >
+                <div>
+                  <h3 class="font-medium text-sm">锐击</h3>
+                  <p class="text-xs text-light/70">启用技能一闪时暴击%+10%</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    id="talent12"
+                    class="sr-only peer"
+                    checked
+                  />
+                  <div
+                    class="w-9 h-5 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"
+                  ></div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- 套装系统 -->
+          <div
+            class="bg-neutral-dark/60 rounded-lg p-3 border border-accent/20"
+          >
+            <h2 class="text-lg font-semibold mb-2 flex items-center">
+              <i class="fa fa-shopping-bag text-secondary mr-2"></i>套装系统
+            </h2>
+            <div class="space-y-2 text-sm">
+              <div
+                class="flex items-center justify-between bg-dark/30 rounded p-2 border border-accent/10"
+              >
+                <div>
+                  <h3 class="font-medium text-sm">武器</h3>
+                  <p class="text-xs text-light/70">暴击伤害+15%</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    id="weaponSet"
+                    class="sr-only peer"
+                    checked
+                  />
+                  <div
+                    class="w-9 h-5 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"
+                  ></div>
+                </label>
+              </div>
+
+              <div
+                class="flex items-center justify-between bg-dark/30 rounded p-2 border border-accent/10"
+              >
+                <div>
+                  <h3 class="font-medium text-sm">2件套</h3>
+                  <p class="text-xs text-light/70">
+                    启用技能居合斩时，技能伤害%+10%
+                  </p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    id="twoPieceSet"
+                    class="sr-only peer"
+                    checked
+                  />
+                  <div
+                    class="w-9 h-5 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"
+                  ></div>
+                </label>
+              </div>
+
+              <div
+                class="flex items-center justify-between bg-dark/30 rounded p-2 border border-accent/10"
+              >
+                <div>
+                  <h3 class="font-medium text-sm">4件套</h3>
+                  <p class="text-xs text-light/70">技能伤害%+6%</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    id="fourPieceSet"
+                    class="sr-only peer"
+                    checked
+                  />
+                  <div
+                    class="w-9 h-5 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"
+                  ></div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- 模组系统 -->
+          <div
+            class="bg-neutral-dark/60 rounded-lg p-3 border border-accent/20"
+          >
+            <h2 class="text-lg font-semibold mb-2 flex items-center">
+              <i class="fa fa-cogs text-secondary mr-2"></i>模组系统
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+              <!-- 模组1：敏捷加持 -->
+              <div class="bg-dark/30 rounded p-2 border border-accent/10">
+                <div class="flex items-center justify-between mb-1">
+                  <h3 class="font-medium text-sm">敏捷加持</h3>
+                  <label
+                    class="relative inline-flex items-center cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      id="module1Enabled"
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="w-8 h-4 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[0.5px] after:left-[0.5px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-accent"
+                    ></div>
+                  </label>
+                </div>
+                <div id="module1Levels" class="hidden">
+                  <p class="text-xs text-light/70 mb-1">选择等级：</p>
+                  <div class="grid grid-cols-2 gap-1">
+                    <label
+                      class="flex items-center bg-dark/50 rounded px-2 py-0.5 cursor-pointer hover:bg-dark/80"
+                    >
+                      <input
+                        type="radio"
+                        name="module1Level"
+                        value="5"
+                        class="mr-1"
+                      />
+                      <span class="text-xs">5级 (物理伤害+3.6%)</span>
+                    </label>
+                    <label
+                      class="flex items-center bg-dark/50 rounded px-2 py-0.5 cursor-pointer hover:bg-dark/80"
+                    >
+                      <input
+                        type="radio"
+                        name="module1Level"
+                        value="6"
+                        class="mr-1"
+                      />
+                      <span class="text-xs">6级 (物理伤害+6%)</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 模组2：特攻伤害加持 -->
+              <div class="bg-dark/30 rounded p-2 border border-accent/10">
+                <div class="flex items-center justify-between mb-1">
+                  <h3 class="font-medium text-sm">特攻伤害加持</h3>
+                  <label
+                    class="relative inline-flex items-center cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      id="module2Enabled"
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="w-8 h-4 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[0.5px] after:left-[0.5px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-accent"
+                    ></div>
+                  </label>
+                </div>
+                <div id="module2Levels" class="hidden">
+                  <p class="text-xs text-light/70 mb-1">选择等级：</p>
+                  <div class="grid grid-cols-2 gap-1">
+                    <label
+                      class="flex items-center bg-dark/50 rounded px-2 py-0.5 cursor-pointer hover:bg-dark/80"
+                    >
+                      <input
+                        type="radio"
+                        name="module2Level"
+                        value="5"
+                        class="mr-1"
+                      />
+                      <span class="text-xs">5级 (居合斩元素+7.2%)</span>
+                    </label>
+                    <label
+                      class="flex items-center bg-dark/50 rounded px-2 py-0.5 cursor-pointer hover:bg-dark/80"
+                    >
+                      <input
+                        type="radio"
+                        name="module2Level"
+                        value="6"
+                        class="mr-1"
+                      />
+                      <span class="text-xs">6级 (居合斩元素+12%)</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 模组3：精英打击 -->
+              <div class="bg-dark/30 rounded p-2 border border-accent/10">
+                <div class="flex items-center justify-between mb-1">
+                  <h3 class="font-medium text-sm">精英打击</h3>
+                  <label
+                    class="relative inline-flex items-center cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      id="module3Enabled"
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="w-8 h-4 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[0.5px] after:left-[0.5px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-accent"
+                    ></div>
+                  </label>
+                </div>
+                <div id="module3Levels" class="hidden">
+                  <p class="text-xs text-light/70 mb-1">选择等级：</p>
+                  <div class="grid grid-cols-2 gap-1">
+                    <label
+                      class="flex items-center bg-dark/50 rounded px-2 py-0.5 cursor-pointer hover:bg-dark/80"
+                    >
+                      <input
+                        type="radio"
+                        name="module3Level"
+                        value="5"
+                        class="mr-1"
+                      />
+                      <span class="text-xs">5级 (首领伤害+3.9%)</span>
+                    </label>
+                    <label
+                      class="flex items-center bg-dark/50 rounded px-2 py-0.5 cursor-pointer hover:bg-dark/80"
+                    >
+                      <input
+                        type="radio"
+                        name="module3Level"
+                        value="6"
+                        class="mr-1"
+                      />
+                      <span class="text-xs">6级 (首领伤害+6.6%)</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 模组4：暴击专注 -->
+              <div class="bg-dark/30 rounded p-2 border border-accent/10">
+                <div class="flex items-center justify-between mb-1">
+                  <h3 class="font-medium text-sm">暴击专注</h3>
+                  <label
+                    class="relative inline-flex items-center cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      id="module4Enabled"
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="w-8 h-4 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[0.5px] after:left-[0.5px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-accent"
+                    ></div>
+                  </label>
+                </div>
+                <div id="module4Levels" class="hidden">
+                  <p class="text-xs text-light/70 mb-1">选择等级：</p>
+                  <div class="grid grid-cols-2 gap-1">
+                    <label
+                      class="flex items-center bg-dark/50 rounded px-2 py-0.5 cursor-pointer hover:bg-dark/80"
+                    >
+                      <input
+                        type="radio"
+                        name="module4Level"
+                        value="3"
+                        class="mr-1"
+                      />
+                      <span class="text-xs">3级 (元素+0.44%)</span>
+                    </label>
+                    <label
+                      class="flex items-center bg-dark/50 rounded px-2 py-0.5 cursor-pointer hover:bg-dark/80"
+                    >
+                      <input
+                        type="radio"
+                        name="module4Level"
+                        value="4"
+                        class="mr-1"
+                      />
+                      <span class="text-xs">4级 (元素+0.88%)</span>
+                    </label>
+                    <label
+                      class="flex items-center bg-dark/50 rounded px-2 py-0.5 cursor-pointer hover:bg-dark/80"
+                    >
+                      <input
+                        type="radio"
+                        name="module4Level"
+                        value="5"
+                        class="mr-1"
+                      />
+                      <span class="text-xs">5级 (元素+1.32%，暴伤+7.1%)</span>
+                    </label>
+                    <label
+                      class="flex items-center bg-dark/50 rounded px-2 py-0.5 cursor-pointer hover:bg-dark/80"
+                    >
+                      <input
+                        type="radio"
+                        name="module4Level"
+                        value="6"
+                        class="mr-1"
+                      />
+                      <span class="text-xs">6级 (元素+1.76%，暴伤+12%)</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 模组5：极·伤害叠加 -->
+              <div class="bg-dark/30 rounded p-2 border border-accent/10">
+                <div class="flex items-center justify-between mb-1">
+                  <h3 class="font-medium text-sm">极·伤害叠加</h3>
+                  <label
+                    class="relative inline-flex items-center cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      id="module5Enabled"
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="w-8 h-4 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[0.5px] after:left-[0.5px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-accent"
+                    ></div>
+                  </label>
+                </div>
+                <div id="module5Levels" class="hidden">
+                  <p class="text-xs text-light/70 mb-1">选择等级：</p>
+                  <div class="grid grid-cols-2 gap-1">
+                    <label
+                      class="flex items-center bg-dark/50 rounded px-2 py-0.5 cursor-pointer hover:bg-dark/80"
+                    >
+                      <input
+                        type="radio"
+                        name="module5Level"
+                        value="5"
+                        class="mr-1"
+                      />
+                      <span class="text-xs">5级 (易伤+6.6%)</span>
+                    </label>
+                    <label
+                      class="flex items-center bg-dark/50 rounded px-2 py-0.5 cursor-pointer hover:bg-dark/80"
+                    >
+                      <input
+                        type="radio"
+                        name="module5Level"
+                        value="6"
+                        class="mr-1"
+                      />
+                      <span class="text-xs">6级 (易伤+11%)</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 模组6：极·灵活身法 -->
+              <div class="bg-dark/30 rounded p-2 border border-accent/10">
+                <div class="flex items-center justify-between mb-1">
+                  <h3 class="font-medium text-sm">极·灵活身法</h3>
+                  <label
+                    class="relative inline-flex items-center cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      id="module6Enabled"
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="w-8 h-4 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[0.5px] after:left-[0.5px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-accent"
+                    ></div>
+                  </label>
+                </div>
+                <div id="module6Levels" class="hidden">
+                  <p class="text-xs text-light/70 mb-1">选择等级：</p>
+                  <div class="grid grid-cols-2 gap-1">
+                    <label
+                      class="flex items-center bg-dark/50 rounded px-2 py-0.5 cursor-pointer hover:bg-dark/80"
+                    >
+                      <input
+                        type="radio"
+                        name="module6Level"
+                        value="5"
+                        class="mr-1"
+                      />
+                      <span class="text-xs">5级 (物理攻击×1.06)</span>
+                    </label>
+                    <label
+                      class="flex items-center bg-dark/50 rounded px-2 py-0.5 cursor-pointer hover:bg-dark/80"
+                    >
+                      <input
+                        type="radio"
+                        name="module6Level"
+                        value="6"
+                        class="mr-1"
+                      />
+                      <span class="text-xs">6级 (物理攻击×1.1)</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 增益系统 -->
+          <div
+            class="bg-neutral-dark/60 rounded-lg p-3 border border-accent/20"
+          >
+            <h2 class="text-lg font-semibold mb-2 flex items-center">
+              <i class="fa fa-plus-circle text-secondary mr-2"></i>增益系统
+            </h2>
+            <div class="space-y-2 text-sm">
+              <!-- 增益模板3：剧毒蜂巢 -->
+              <div class="bg-dark/30 rounded p-2 border border-accent/10">
+                <div class="flex items-center justify-between mb-1">
+                  <h3 class="font-medium text-sm">剧毒蜂巢</h3>
+                  <label
+                    class="relative inline-flex items-center cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      id="buff3Enabled"
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="w-8 h-4 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[0.5px] after:left-[0.5px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-accent"
+                    ></div>
+                  </label>
+                </div>
+                <div id="buff3Settings" class="hidden">
+                  <div>
+                    <label class="block text-xs text-light/70 mb-0.5"
+                      >易伤伤害%+X</label
+                    >
+                    <input
+                      type="number"
+                      id="buff3Value"
+                      class="w-full bg-dark/50 border border-accent/20 rounded px-2 py-1 text-xs text-light"
+                      min="0"
+                      step="0.01"
+                      value="10"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- 增益模板4：山贼头目 -->
+              <div class="bg-dark/30 rounded p-2 border border-accent/10">
+                <div class="flex items-center justify-between mb-1">
+                  <h3 class="font-medium text-sm">山贼头目</h3>
+                  <label
+                    class="relative inline-flex items-center cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      id="buff4Enabled"
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="w-8 h-4 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[0.5px] after:left-[0.5px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-accent"
+                    ></div>
+                  </label>
+                </div>
+                <div id="buff4Settings" class="hidden">
+                  <div>
+                    <label class="block text-xs text-light/70 mb-0.5"
+                      >物理攻击%×X</label
+                    >
+                    <input
+                      type="number"
+                      id="buff4Value"
+                      class="w-full bg-dark/50 border border-accent/20 rounded px-2 py-1 text-xs text-light"
+                      min="0"
+                      step="0.01"
+                      value="1.1"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- 自定义增益 -->
+              <div id="customBuffsContainer">
+                <!-- 初始自定义增益 -->
+                <div
+                  class="bg-dark/30 rounded p-2 border border-accent/10 custom-buff"
+                >
+                  <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center">
+                      <input
+                        type="text"
+                        placeholder="输入增益名称"
+                        class="bg-dark/70 border border-accent/20 rounded px-2 py-0.5 text-xs text-light mr-2 w-36 custom-buff-name"
+                        value="我的增益"
+                      />
+                    </div>
+                    <div class="flex items-center">
+                      <label
+                        class="relative inline-flex items-center cursor-pointer mr-2"
+                      >
+                        <input
+                          type="checkbox"
+                          class="sr-only peer custom-buff-enabled"
+                        />
+                        <div
+                          class="w-8 h-4 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[0.5px] after:left-[0.5px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-accent"
+                        ></div>
+                      </label>
+                      <button
+                        class="delete-buff-btn text-light/60 hover:text-red-400 transition-all-300"
+                      >
+                        <i class="fa fa-trash-o"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="custom-buff-settings hidden">
+                    <div class="space-y-2 buff-properties">
+                      <div class="grid grid-cols-3 gap-2 mb-1 buff-property">
+                        <div>
+                          <label class="block text-xs text-light/70 mb-0.5"
+                            >乘区</label
+                          >
+                          <select
+                            class="w-full bg-dark/50 border border-accent/20 rounded px-2 py-1 text-xs text-light custom-buff-region"
+                          >
+                            <option value="physAtk">物理攻击</option>
+                            <option value="elemAtk">元素攻击</option>
+                            <option value="refineAtk">精炼攻击</option>
+                            <option value="meleeDmg">近距离伤害%</option>
+                            <option value="bossDmg">首领伤害%</option>
+                            <option value="vulnDmg">易伤伤害%</option>
+                            <option value="skillDmg">技能伤害%</option>
+                            <option value="physDmg">物理伤害%</option>
+                            <option value="allRound">全能%</option>
+                            <option value="elemBonus">元素加成%</option>
+                            <option value="critDmg">暴击伤害%</option>
+                            <option value="critRate">暴击%</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label class="block text-xs text-light/70 mb-0.5"
+                            >计算方式</label
+                          >
+                          <select
+                            class="w-full bg-dark/50 border border-accent/20 rounded px-2 py-1 text-xs text-light custom-buff-calc"
+                          >
+                            <option value="add">加法 (+X)</option>
+                            <option value="multiply">乘法 (×X)</option>
+                          </select>
+                        </div>
+                        <div class="flex flex-col">
+                          <label class="block text-xs text-light/70 mb-0.5"
+                            >数值</label
+                          >
+                          <div class="flex">
+                            <input
+                              type="number"
+                              class="w-full bg-dark/50 border border-accent/20 rounded-l px-2 py-1 text-xs text-light custom-buff-value"
+                              min="0"
+                              step="0.01"
+                              value="10"
+                            />
+                            <button
+                              class="delete-property-btn bg-dark/50 border border-accent/20 border-l-0 rounded-r px-1 text-light/60 hover:text-red-400 transition-all-300"
+                            >
+                              <i class="fa fa-times"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      class="add-property-btn w-full mt-1 bg-accent/10 hover:bg-accent/20 text-light font-medium py-1 px-2 rounded transition-all-300 text-xs flex items-center justify-center"
+                    >
+                      <i class="fa fa-plus mr-1"></i>添加属性
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 添加新自定义增益按钮 -->
+              <button
+                id="addCustomBuffBtn"
+                class="w-full mt-2 bg-accent/20 hover:bg-accent/30 text-light font-medium py-1.5 px-3 rounded transition-all-300 text-xs flex items-center justify-center"
+              >
+                <i class="fa fa-plus mr-1"></i>添加新自定义增益
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 右侧：结果展示 (4列) -->
+        <section class="lg:col-span-4 space-y-4">
+          <!-- 怪物信息 -->
+          <div
+            class="bg-neutral-dark/60 rounded-lg p-3 border border-accent/20"
+          >
+            <h2 class="text-lg font-semibold mb-2 flex items-center">
+              <i class="fa fa-skull text-secondary mr-2"></i>怪物信息
+            </h2>
+            <div class="text-sm">
+              <label class="block text-xs text-light/70 mb-1">怪物防御</label>
+              <input
+                type="number"
+                id="monsterDefense"
+                class="w-full bg-dark/50 border border-accent/30 rounded px-2 py-1 text-light text-sm"
+                min="0"
+                max="999999"
+                value="2785"
+                readonly
+              />
+              <p class="text-xs text-light/60 mt-1">固定值：2785</p>
+            </div>
+          </div>
+
+          <!-- 计算结果 -->
+          <div
+            class="bg-gradient-to-br from-primary/30 to-dark rounded-lg p-3 border border-accent/40 shadow-[0_0_10px_rgba(124,58,237,0.3)]"
+          >
+            <h2 class="text-lg font-semibold mb-2 flex items-center">
+              <i class="fa fa-calculator text-secondary mr-2"></i>伤害计算结果
+            </h2>
+
+            <!-- 首领伤害开关 -->
+            <div
+              class="flex items-center justify-between mb-3 p-2 bg-dark/50 rounded border border-accent/20"
+            >
+              <span class="text-sm">首领伤害生效</span>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="bossDmgToggle"
+                  class="sr-only peer"
+                />
+                <div
+                  class="w-9 h-5 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"
+                ></div>
+              </label>
+            </div>
+
+            <!-- 普通伤害结果 -->
+            <div class="mb-3">
+              <div class="flex justify-between items-center mb-0.5">
+                <h3 class="text-xs text-light/70">非暴击伤害</h3>
+                <span
+                  id="hitCount"
+                  class="text-xs bg-secondary/20 text-secondary px-1.5 py-0.25 rounded-full hidden"
+                >
+                  <i class="fa fa-bolt mr-0.5"></i>攻击x2
+                </span>
+              </div>
+              <div
+                class="text-2xl font-bold text-white text-shadow-glow"
+                id="nonCritDmg"
+              >
+                0.0
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <h3 class="text-xs text-light/70 mb-0.5">暴击伤害</h3>
+              <div
+                class="text-2xl font-bold text-secondary text-shadow-glow"
+                id="critDmgResult"
+              >
+                0.0
+              </div>
+            </div>
+
+            <!-- 高血量目标伤害 -->
+            <div class="mb-3 hidden" id="highHpDmgContainer">
+              <h3 class="text-xs text-light/70 mb-1">
+                高血量目标（决斗意识生效）
+              </h3>
+              <div class="mb-0.5">
+                <h3 class="text-xs text-light/70 mb-0.5">非暴击伤害</h3>
+                <div
+                  class="text-xl font-bold text-white text-shadow-glow"
+                  id="highHpNonCritDmg"
+                >
+                  0.0
+                </div>
+              </div>
+
+              <div class="mt-1">
+                <h3 class="text-xs text-light/70 mb-0.5">暴击伤害</h3>
+                <div
+                  class="text-xl font-bold text-secondary text-shadow-glow"
+                  id="highHpCritDmg"
+                >
+                  0.0
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-sm">
+              <div class="bg-dark/50 rounded p-2 border border-accent/20">
+                <h3 class="text-xs text-light/70 mb-0.5">基础伤害</h3>
+                <div class="font-medium" id="baseDmg">0.0</div>
+              </div>
+              <div class="bg-dark/50 rounded p-2 border border-accent/20">
+                <h3 class="text-xs text-light/70 mb-0.5">暴击率</h3>
+                <div class="font-medium" id="finalCritRate">0%</div>
+              </div>
+              <div class="bg-dark/50 rounded p-2 border border-accent/20">
+                <h3 class="text-xs text-light/70 mb-0.5">公共乘区加成</h3>
+                <div class="font-medium" id="publicMulti">0%</div>
+              </div>
+              <div class="bg-dark/50 rounded p-2 border border-accent/20">
+                <h3 class="text-xs text-light/70 mb-0.5">全能乘区加成</h3>
+                <div class="font-medium" id="allRoundMulti">0%</div>
+              </div>
+              <div class="bg-dark/50 rounded p-2 border border-accent/20">
+                <h3 class="text-xs text-light/70 mb-0.5">元素加成</h3>
+                <div class="font-medium" id="elementBonus">0%</div>
+              </div>
+            </div>
+
+            <button
+              id="calculateBtn"
+              class="w-full mt-3 bg-gradient-to-r from-primary to-accent hover:from-accent hover:to-primary text-white font-medium py-2 px-3 rounded transition-all-300 text-sm"
+            >
+              <i class="fa fa-bolt mr-1"></i>计算伤害
+            </button>
+            <!-- 在伤害计算结果区域添加期望伤害显示 -->
+            <div class="mb-3">
+              <h3 class="text-xs text-light/70 mb-0.5">期望伤害</h3>
+              <div
+                class="text-2xl font-bold text-accent text-shadow-glow"
+                id="expectedDmg"
+              >
+                0.0
+              </div>
+            </div>
+
+            <button
+              id="toggleExpectedBtn"
+              class="w-full mt-2 bg-secondary hover:bg-secondary/80 text-dark font-medium py-1.5 px-3 rounded transition-all-300 text-sm"
+            >
+              <i class="fa fa-eye mr-1"></i>显示期望伤害
+            </button>
+
+            <!-- 循环模拟功能 -->
+            <div class="mt-3 pt-3 border-t border-accent/20">
+              <h3 class="text-xs text-light/70 mb-1">循环模拟</h3>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2">
+                <div class="flex items-center space-x-1">
+                  <input
+                    type="number"
+                    id="skill1Count"
+                    class="w-16 bg-dark/50 border border-accent/30 rounded px-2 py-1 text-light text-sm"
+                    min="0"
+                    max="100"
+                    value="10"
+                  />
+                  <label class="text-xs text-light/70">居合斩</label>
+                </div>
+                <div class="flex items-center space-x-1">
+                  <input
+                    type="number"
+                    id="skill2Count"
+                    class="w-16 bg-dark/50 border border-accent/30 rounded px-2 py-1 text-light text-sm"
+                    min="0"
+                    max="100"
+                    value="5"
+                  />
+                  <label class="text-xs text-light/70">一闪</label>
+                </div>
+                <div class="flex items-center space-x-1">
+                  <input
+                    type="number"
+                    id="skill3Count"
+                    class="w-16 bg-dark/50 border border-accent/30 rounded px-2 py-1 text-light text-sm"
+                    min="0"
+                    max="100"
+                    value="1"
+                  />
+                  <label class="text-xs text-light/70">自定义</label>
+                </div>
+              </div>
+              <button
+                id="cycleSimBtn"
+                class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium py-1 px-2 rounded transition-all-300 text-sm"
+              >
+                计算循环伤害
+              </button>
+              <div id="cycleResult" class="mt-2 hidden">
+                <h3 class="text-xs text-light/70 mb-0.5">循环总伤害</h3>
+                <div
+                  class="text-xl font-bold text-purple-400 text-shadow-glow"
+                  id="cycleDmg"
+                >
+                  0.0
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 伤害构成分析 -->
+          <div
+            class="bg-neutral-dark/60 rounded-lg p-3 border border-accent/20"
+          >
+            <h2 class="text-lg font-semibold mb-2 flex items-center">
+              <i class="fa fa-pie-chart text-secondary mr-2"></i>伤害构成
+            </h2>
+            <div class="h-48 mb-2">
+              <canvas id="damageChart"></canvas>
+            </div>
+            <button
+              id="detailBtn"
+              class="w-full bg-accent/10 hover:bg-accent/20 text-light font-medium py-1.5 px-3 rounded transition-all-300 text-sm flex items-center justify-center"
+            >
+              <i class="fa fa-list mr-1"></i>详细数据
+            </button>
+          </div>
+
+          <!-- 简要说明 -->
+          <div
+            class="bg-neutral-dark/60 rounded-lg p-3 border border-accent/20 text-xs"
+          >
+            <h2 class="font-semibold mb-1 flex items-center">
+              <i class="fa fa-info-circle text-secondary mr-1"></i>说明
+            </h2>
+            <ul class="text-light/80 space-y-1">
+              <li>• 输入数值后自动计算或点击计算按钮</li>
+              <li>• 居合斩+雷之印≥3时会触发攻击x2</li>
+              <li>• 雷之印为0时，精通%不生效</li>
+              <li>• 所有伤害结果均为单次伤害值</li>
+              <li>• 增益系统可叠加多个效果，默认全部关闭</li>
+              <li>• 自定义增益支持命名、添加多条属性和删除</li>
+            </ul>
+          </div>
+        </section>
+      </main>
+
+      <!-- 页脚 -->
+      <footer class="mt-4 text-center text-light/50 text-xs py-2">
+        <p>计算器</p>
+      </footer>
+    </div>
+
+    <!-- 详细数据模态框 -->
+    <div
+      id="detailModal"
+      class="fixed inset-0 z-50 flex items-center justify-center hidden modal-backdrop"
+    >
+      <div
+        class="modal-content rounded-lg border border-accent/30 w-11/12 md:w-4/5 lg:w-3/4 max-h-[90vh] overflow-y-auto"
+      >
+        <div class="p-4">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold text-secondary">
+              <i class="fa fa-bar-chart mr-2"></i>伤害构成详细数据
+            </h3>
+            <button
+              id="closeModalBtn"
+              class="text-light/60 hover:text-white text-2xl"
+            >
+              &times;
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- 左侧：乘区占比 -->
+            <div
+              class="bg-neutral-dark/60 rounded-lg p-4 border border-accent/20"
+            >
+              <h4 class="text-lg font-semibold mb-3 text-accent-light">
+                <i class="fa fa-cube mr-2"></i>乘区占比
+              </h4>
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                  <span>物理攻击贡献</span>
+                  <span id="physAtkContribution">0.0 (0.0%)</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>元素攻击贡献</span>
+                  <span id="elemAtkContribution">0.0 (0.0%)</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>精炼攻击贡献</span>
+                  <span id="refineAtkContribution">0.0 (0.0%)</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>附加伤害贡献</span>
+                  <span id="skillAddContribution">0.0 (0.0%)</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>精通加成</span>
+                  <span id="masteryContribution">0.0%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 右侧：天赋与模组效果 -->
+            <div
+              class="bg-neutral-dark/60 rounded-lg p-4 border border-accent/20"
+            >
+              <h4 class="text-lg font-semibold mb-3 text-accent-light">
+                <i class="fa fa-magic mr-2"></i>天赋与模组效果
+              </h4>
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                  <span>天赋总加成</span>
+                  <span id="talentsContribution">0.0%</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>模组总加成</span>
+                  <span id="modulesContribution">0.0%</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>套装效果加成</span>
+                  <span id="setsContribution">0.0%</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>增益效果加成</span>
+                  <span id="buffsContribution">0.0%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 底部：乘区加成详情 -->
+            <div
+              class="md:col-span-2 bg-neutral-dark/60 rounded-lg p-4 border border-accent/20"
+            >
+              <h4 class="text-lg font-semibold mb-3 text-accent-light">
+                <i class="fa fa-list mr-2"></i>乘区加成详情
+              </h4>
+              <div
+                class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-sm"
+              >
+                <div class="flex justify-between">
+                  <span>公共乘区总加成</span>
+                  <span id="publicMultiDetail">0.0%</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>全能乘区加成</span>
+                  <span id="allRoundDetail">0.0%</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>元素加成</span>
+                  <span id="elemBonusDetail">0.0%</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>暴击伤害加成</span>
+                  <span id="critDmgDetail">0.0%</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>防御减伤系数</span>
+                  <span id="defenseFactorDetail">0.0%</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>暴击防御减伤系数</span>
+                  <span id="critDefenseFactorDetail">0.0%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 数据对比模态框 -->
+    <div
+      id="compareModal"
+      class="fixed inset-0 z-50 flex items-center justify-center hidden modal-backdrop"
+    >
+      <div
+        class="modal-content rounded-lg border border-accent/30 w-11/12 md:w-4/5 lg:w-3/4 max-h-[90vh] overflow-y-auto"
+      >
+        <div class="p-4">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold text-secondary">
+              <i class="fa fa-exchange mr-2"></i>配置数据对比
+            </h3>
+            <button
+              id="closeCompareModalBtn"
+              class="text-light/60 hover:text-white text-2xl"
+            >
+              &times;
+            </button>
+          </div>
+
+          <div class="mb-4">
+            <h4 class="text-lg font-semibold mb-2 text-accent-light">
+              选择要对比的配置
+            </h4>
+            <div
+              id="compareConfigSelection"
+              class="grid grid-cols-1 md:grid-cols-2 gap-3"
+            >
+              <!-- 配置选择项将通过JavaScript动态生成 -->
+            </div>
+          </div>
+
+          <div class="flex justify-center mb-4">
+            <button
+              id="startCompareBtn"
+              class="bg-gradient-to-r from-primary to-accent hover:from-accent hover:to-primary text-white font-medium py-2 px-6 rounded transition-all-300"
+            >
+              开始对比
+            </button>
+          </div>
+
+          <div id="compareResults" class="hidden">
+            <h4 class="text-lg font-semibold mb-2 text-accent-light">
+              对比结果
+            </h4>
+            <div id="compareResultsContainer" class="overflow-x-auto">
+              <!-- 对比结果将通过JavaScript动态生成 -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 引入Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+
+    <!-- 主脚本 -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // 配置管理
+        const configSelect = document.getElementById("configSelect");
+        const configNameInput = document.getElementById("configName");
+        const saveConfigBtn = document.getElementById("saveConfigBtn");
+        const deleteConfigBtn = document.getElementById("deleteConfigBtn");
+        const defaultConfigBtn = document.getElementById("defaultConfigBtn");
+
+        // 加载配置列表
+        function loadConfigList() {
+          configSelect.innerHTML = "";
+          const savedConfigs =
+            JSON.parse(localStorage.getItem("tachiConfigs")) || {};
+
+          // 添加默认配置选项
+          const defaultOption = document.createElement("option");
+          defaultOption.value = "default";
+          defaultOption.textContent = "默认配置";
+          configSelect.appendChild(defaultOption);
+
+          // 添加保存的配置
+          Object.keys(savedConfigs).forEach((name) => {
+            const option = document.createElement("option");
+            option.value = name;
+            option.textContent = name;
+            configSelect.appendChild(option);
+          });
+
+          // 添加新建配置选项
+          const newOption = document.createElement("option");
+          newOption.value = "new";
+          newOption.textContent = "新建配置...";
+          configSelect.appendChild(newOption);
+        }
+
+        // 保存配置
+        saveConfigBtn.addEventListener("click", function () {
+          const configName = configNameInput.value.trim();
+          if (!configName) {
+            alert("请输入配置名称");
+            return;
+          }
+
+          // 收集所有配置数据
+          const configData = {
+            // 基础属性
+            physAtk: document.getElementById("physAtk").value,
+            elemAtk: document.getElementById("elemAtk").value,
+            refineAtk: document.getElementById("refineAtk").value,
+            mastery: document.getElementById("mastery").value,
+            thunderSeal: document.getElementById("thunderSeal").value,
+
+            // 公共乘区
+            meleeDmg: document.getElementById("meleeDmg").value,
+            bossDmg: document.getElementById("bossDmg").value,
+            vulnDmg: document.getElementById("vulnDmg").value,
+            skillDmg: document.getElementById("skillDmg").value,
+            physDmg: document.getElementById("physDmg").value,
+
+            // 独立乘区
+            allRound: document.getElementById("allRound").value,
+            elemBonus: document.getElementById("elemBonus").value,
+            critDmg: document.getElementById("critDmg").value,
+            critRate: document.getElementById("critRate").value,
+
+            // 技能选择
+            activeSkill: document.getElementById("activeSkill").value,
+            skill1Multi: document.getElementById("skill1Multi").value,
+            skill1Add: document.getElementById("skill1Add").value,
+            skill2Multi: document.getElementById("skill2Multi").value,
+            skill2Add: document.getElementById("skill2Add").value,
+            skill3Multi: document.getElementById("skill3Multi").value,
+            skill3Add: document.getElementById("skill3Add").value,
+
+            // 循环模拟次数
+            skill1Count: document.getElementById("skill1Count").value,
+            skill2Count: document.getElementById("skill2Count").value,
+            skill3Count: document.getElementById("skill3Count").value,
+
+            // 天赋系统
+            talent1: document.getElementById("talent1").checked,
+            talent2: document.getElementById("talent2").checked,
+            talent3: document.getElementById("talent3").checked,
+            talent4: document.getElementById("talent4").checked,
+            talent4Level: document.getElementById("talent4Level").value,
+            talent5: document.getElementById("talent5").checked,
+            talent5Level: document.getElementById("talent5Level").value,
+            talent6: document.getElementById("talent6").checked,
+            talent7: document.getElementById("talent7").checked,
+            talent8: document.getElementById("talent8").checked,
+            talent10: document.getElementById("talent10").checked,
+            talent11: document.getElementById("talent11").checked,
+            talent12: document.getElementById("talent12").checked,
+
+            // 套装系统
+            weaponSet: document.getElementById("weaponSet").checked,
+            twoPieceSet: document.getElementById("twoPieceSet").checked,
+            fourPieceSet: document.getElementById("fourPieceSet").checked,
+
+            // 模组系统
+            module1Enabled: document.getElementById("module1Enabled").checked,
+            module1Level:
+              document.querySelector('input[name="module1Level"]:checked')
+                ?.value || "5",
+            module2Enabled: document.getElementById("module2Enabled").checked,
+            module2Level:
+              document.querySelector('input[name="module2Level"]:checked')
+                ?.value || "5",
+            module3Enabled: document.getElementById("module3Enabled").checked,
+            module3Level:
+              document.querySelector('input[name="module3Level"]:checked')
+                ?.value || "5",
+            module4Enabled: document.getElementById("module4Enabled").checked,
+            module4Level:
+              document.querySelector('input[name="module4Level"]:checked')
+                ?.value || "5",
+            module5Enabled: document.getElementById("module5Enabled").checked,
+            module5Level:
+              document.querySelector('input[name="module5Level"]:checked')
+                ?.value || "5",
+            module6Enabled: document.getElementById("module6Enabled").checked,
+            module6Level:
+              document.querySelector('input[name="module6Level"]:checked')
+                ?.value || "5",
+
+            // 增益系统
+            buff3Enabled: document.getElementById("buff3Enabled").checked,
+            buff3Value: document.getElementById("buff3Value").value,
+            buff4Enabled: document.getElementById("buff4Enabled").checked,
+            buff4Value: document.getElementById("buff4Value").value,
+
+            // 其他
+            bossDmgToggle: document.getElementById("bossDmgToggle").checked,
+          };
+
+          // 保存到localStorage
+          const savedConfigs =
+            JSON.parse(localStorage.getItem("tachiConfigs")) || {};
+          savedConfigs[configName] = configData;
+          localStorage.setItem("tachiConfigs", JSON.stringify(savedConfigs));
+
+          // 更新配置列表
+          loadConfigList();
+
+          // 选择新保存的配置
+          configSelect.value = configName;
+          alert("配置已保存！");
+        });
+
+        // 删除配置
+        deleteConfigBtn.addEventListener("click", function () {
+          const selectedConfig = configSelect.value;
+          if (selectedConfig === "default" || selectedConfig === "new") {
+            alert("无法删除默认配置或新建选项");
+            return;
+          }
+
+          if (confirm(`确定要删除配置 "${selectedConfig}" 吗？`)) {
+            const savedConfigs =
+              JSON.parse(localStorage.getItem("tachiConfigs")) || {};
+            delete savedConfigs[selectedConfig];
+            localStorage.setItem("tachiConfigs", JSON.stringify(savedConfigs));
+
+            loadConfigList();
+            configSelect.value = "default";
+            configNameInput.value = "";
+            alert("配置已删除");
+          }
+        });
+
+        // 恢复默认配置
+        defaultConfigBtn.addEventListener("click", function () {
+          if (confirm("确定要恢复默认配置吗？当前数据将丢失。")) {
+            resetToDefaultConfig();
+            calculateDamage();
+          }
+        });
+
+        // 配置选择变化
+        configSelect.addEventListener("change", function () {
+          if (this.value === "new") {
+            configNameInput.value = "";
+            resetToDefaultConfig();
+          } else if (this.value !== "default") {
+            loadConfig(this.value);
+          }
+        });
+
+        // 加载配置
+        function loadConfig(configName) {
+          const savedConfigs =
+            JSON.parse(localStorage.getItem("tachiConfigs")) || {};
+          const configData = savedConfigs[configName];
+
+          if (!configData) return;
+
+          // 应用配置
+          document.getElementById("physAtk").value = configData.physAtk || 0;
+          document.getElementById("elemAtk").value = configData.elemAtk || 0;
+          document.getElementById("refineAtk").value =
+            configData.refineAtk || 0;
+          document.getElementById("mastery").value = configData.mastery || 0;
+          document.getElementById("thunderSeal").value =
+            configData.thunderSeal || 0;
+
+          document.getElementById("meleeDmg").value = configData.meleeDmg || 0;
+          document.getElementById("bossDmg").value = configData.bossDmg || 0;
+          document.getElementById("vulnDmg").value = configData.vulnDmg || 0;
+          document.getElementById("skillDmg").value = configData.skillDmg || 0;
+          document.getElementById("physDmg").value = configData.physDmg || 0;
+
+          document.getElementById("allRound").value = configData.allRound || 0;
+          document.getElementById("elemBonus").value =
+            configData.elemBonus || 0;
+          document.getElementById("critDmg").value = configData.critDmg || 0;
+          document.getElementById("critRate").value = configData.critRate || 0;
+
+          document.getElementById("activeSkill").value =
+            configData.activeSkill || "1";
+          document.getElementById("skill1Multi").value =
+            configData.skill1Multi || 100;
+          document.getElementById("skill1Add").value =
+            configData.skill1Add || 0;
+          document.getElementById("skill2Multi").value =
+            configData.skill2Multi || 150;
+          document.getElementById("skill2Add").value =
+            configData.skill2Add || 50;
+          document.getElementById("skill3Multi").value =
+            configData.skill3Multi || 100;
+          document.getElementById("skill3Add").value =
+            configData.skill3Add || 0;
+
+          // 循环模拟次数
+          document.getElementById("skill1Count").value =
+            configData.skill1Count || 0;
+          document.getElementById("skill2Count").value =
+            configData.skill2Count || 0;
+          document.getElementById("skill3Count").value =
+            configData.skill3Count || 0;
+
+          document.getElementById("talent1").checked =
+            configData.talent1 || false;
+          document.getElementById("talent2").checked =
+            configData.talent2 || false;
+          document.getElementById("talent3").checked =
+            configData.talent3 || false;
+          document.getElementById("talent4").checked =
+            configData.talent4 || false;
+          document.getElementById("talent4Level").value =
+            configData.talent4Level || 4;
+          document.getElementById("talent5").checked =
+            configData.talent5 || false;
+          document.getElementById("talent5Level").value =
+            configData.talent5Level || 5;
+          document.getElementById("talent6").checked =
+            configData.talent6 || false;
+          document.getElementById("talent7").checked =
+            configData.talent7 || false;
+          document.getElementById("talent8").checked =
+            configData.talent8 || false;
+          document.getElementById("talent10").checked =
+            configData.talent10 || false;
+          document.getElementById("talent11").checked =
+            configData.talent11 || false;
+          document.getElementById("talent12").checked =
+            configData.talent12 || false;
+
+          document.getElementById("weaponSet").checked =
+            configData.weaponSet || false;
+          document.getElementById("twoPieceSet").checked =
+            configData.twoPieceSet || false;
+          document.getElementById("fourPieceSet").checked =
+            configData.fourPieceSet || false;
+
+          document.getElementById("module1Enabled").checked =
+            configData.module1Enabled || false;
+          setRadioValue("module1Level", configData.module1Level || "5");
+          document.getElementById("module2Enabled").checked =
+            configData.module2Enabled || false;
+          setRadioValue("module2Level", configData.module2Level || "5");
+          document.getElementById("module3Enabled").checked =
+            configData.module3Enabled || false;
+          setRadioValue("module3Level", configData.module3Level || "5");
+          document.getElementById("module4Enabled").checked =
+            configData.module4Enabled || false;
+          setRadioValue("module4Level", configData.module4Level || "5");
+          document.getElementById("module5Enabled").checked =
+            configData.module5Enabled || false;
+          setRadioValue("module5Level", configData.module5Level || "5");
+          document.getElementById("module6Enabled").checked =
+            configData.module6Enabled || false;
+          setRadioValue("module6Level", configData.module6Level || "5");
+
+          document.getElementById("buff3Enabled").checked =
+            configData.buff3Enabled || false;
+          document.getElementById("buff3Value").value =
+            configData.buff3Value || 10;
+          document.getElementById("buff4Enabled").checked =
+            configData.buff4Enabled || false;
+          document.getElementById("buff4Value").value =
+            configData.buff4Value || 1.1;
+
+          document.getElementById("bossDmgToggle").checked =
+            configData.bossDmgToggle || false;
+
+          // 更新UI显示
+          updateTalentLevelVisibility();
+          updateModuleLevelVisibility();
+          updateBuffSettingsVisibility();
+
+          // 更新技能选择UI
+          updateSkillSelection();
+
+          // 设置配置名称
+          configNameInput.value = configName;
+
+          // 重新计算
+          calculateDamage();
+        }
+
+        function setRadioValue(name, value) {
+          const radios = document.querySelectorAll(`input[name="${name}"]`);
+          for (const radio of radios) {
+            if (radio.value === value) {
+              radio.checked = true;
+              break;
+            }
+          }
+        }
+
+        function resetToDefaultConfig() {
+          // 基础属性
+          document.getElementById("physAtk").value = 1000;
+          document.getElementById("elemAtk").value = 50;
+          document.getElementById("refineAtk").value = 0;
+          document.getElementById("mastery").value = 6;
+          document.getElementById("thunderSeal").value = 6;
+
+          // 公共乘区
+          document.getElementById("meleeDmg").value = 0;
+          document.getElementById("bossDmg").value = 0;
+          document.getElementById("vulnDmg").value = 0;
+          document.getElementById("skillDmg").value = 0;
+          document.getElementById("physDmg").value = 0;
+
+          // 独立乘区
+          document.getElementById("allRound").value = 0;
+          document.getElementById("elemBonus").value = 0;
+          document.getElementById("critDmg").value = 50;
+          document.getElementById("critRate").value = 5;
+
+          // 技能选择
+          document.getElementById("activeSkill").value = "1";
+          document.getElementById("skill1Multi").value = 210;
+          document.getElementById("skill1Add").value = 600;
+          document.getElementById("skill2Multi").value = 490;
+          document.getElementById("skill2Add").value = 1400;
+          document.getElementById("skill3Multi").value = 100;
+          document.getElementById("skill3Add").value = 0;
+
+          // 天赋系统
+          document.getElementById("talent1").checked = true;
+          document.getElementById("talent2").checked = true;
+          document.getElementById("talent3").checked = true;
+          document.getElementById("talent4").checked = true;
+          document.getElementById("talent4Level").value = 4;
+          document.getElementById("talent5").checked = true;
+          document.getElementById("talent5Level").value = 5;
+          document.getElementById("talent6").checked = false;
+          document.getElementById("talent7").checked = false;
+          document.getElementById("talent8").checked = false;
+          document.getElementById("talent10").checked = true;
+          document.getElementById("talent11").checked = false;
+          document.getElementById("talent12").checked = true;
+
+          // 套装系统
+          document.getElementById("weaponSet").checked = true;
+          document.getElementById("twoPieceSet").checked = true;
+          document.getElementById("fourPieceSet").checked = true;
+
+          // 模组系统
+          document.getElementById("module1Enabled").checked = false;
+          setRadioValue("module1Level", "5");
+          document.getElementById("module2Enabled").checked = false;
+          setRadioValue("module2Level", "5");
+          document.getElementById("module3Enabled").checked = false;
+          setRadioValue("module3Level", "5");
+          document.getElementById("module4Enabled").checked = false;
+          setRadioValue("module4Level", "5");
+          document.getElementById("module5Enabled").checked = false;
+          setRadioValue("module5Level", "5");
+          document.getElementById("module6Enabled").checked = false;
+          setRadioValue("module6Level", "5");
+
+          // 增益系统
+          document.getElementById("buff3Enabled").checked = false;
+          document.getElementById("buff3Value").value = 10;
+          document.getElementById("buff4Enabled").checked = false;
+          document.getElementById("buff4Value").value = 1.1;
+
+          // 其他
+          document.getElementById("bossDmgToggle").checked = false;
+
+          // 循环模拟功能 - 修正：设置正确的默认攻击次数
+          document.getElementById("skill1Count").value = 0; // 居合斩攻击次数
+          document.getElementById("skill2Count").value = 0; // 一闪攻击次数
+          document.getElementById("skill3Count").value = 0; // 自定义攻击次数
+
+          // 更新UI显示
+          updateTalentLevelVisibility();
+          updateModuleLevelVisibility();
+          updateBuffSettingsVisibility();
+
+          // 更新技能选择UI
+          updateSkillSelection();
+
+          // 设置配置名称
+          configNameInput.value = "";
+        }
+
+        function updateTalentLevelVisibility() {
+          document
+            .getElementById("talent4LevelContainer")
+            .classList.toggle(
+              "hidden",
+              !document.getElementById("talent4").checked
+            );
+          document
+            .getElementById("talent5LevelContainer")
+            .classList.toggle(
+              "hidden",
+              !document.getElementById("talent5").checked
+            );
+        }
+
+        function updateModuleLevelVisibility() {
+          document
+            .getElementById("module1Levels")
+            .classList.toggle(
+              "hidden",
+              !document.getElementById("module1Enabled").checked
+            );
+          document
+            .getElementById("module2Levels")
+            .classList.toggle(
+              "hidden",
+              !document.getElementById("module2Enabled").checked
+            );
+          document
+            .getElementById("module3Levels")
+            .classList.toggle(
+              "hidden",
+              !document.getElementById("module3Enabled").checked
+            );
+          document
+            .getElementById("module4Levels")
+            .classList.toggle(
+              "hidden",
+              !document.getElementById("module4Enabled").checked
+            );
+          document
+            .getElementById("module5Levels")
+            .classList.toggle(
+              "hidden",
+              !document.getElementById("module5Enabled").checked
+            );
+          document
+            .getElementById("module6Levels")
+            .classList.toggle(
+              "hidden",
+              !document.getElementById("module6Enabled").checked
+            );
+        }
+
+        function updateBuffSettingsVisibility() {
+          document
+            .getElementById("buff3Settings")
+            .classList.toggle(
+              "hidden",
+              !document.getElementById("buff3Enabled").checked
+            );
+          document
+            .getElementById("buff4Settings")
+            .classList.toggle(
+              "hidden",
+              !document.getElementById("buff4Enabled").checked
+            );
+        }
+
+        function updateSkillSelection() {
+          const activeSkill = document.getElementById("activeSkill").value;
+          const skillOptions = document.querySelectorAll(".skill-option");
+
+          skillOptions.forEach((option, index) => {
+            option.classList.remove(
+              "active-skill",
+              "border-accent",
+              "bg-dark/80"
+            );
+            if (index + 1 == activeSkill) {
+              option.classList.add(
+                "active-skill",
+                "border-accent",
+                "bg-dark/80"
+              );
+            }
+          });
+        }
+
+        // 初始化配置管理
+        loadConfigList();
+
+        // 技能选择
+        const skillOptions = document.querySelectorAll(".skill-option");
+        const activeSkillInput = document.getElementById("activeSkill");
+
+        skillOptions.forEach((option, index) => {
+          option.addEventListener("click", function () {
+            skillOptions.forEach((opt) =>
+              opt.classList.remove(
+                "active-skill",
+                "border-accent",
+                "bg-dark/80"
+              )
+            );
+            this.classList.add("active-skill", "border-accent", "bg-dark/80");
+            activeSkillInput.value = index + 1;
+            // 隐藏循环模拟结果
+            document.getElementById("cycleResult").classList.add("hidden");
+            calculateDamage();
+          });
+        });
+
+        // 天赋4和5的层数显示控制
+        const talent4 = document.getElementById("talent4");
+        const talent4LevelContainer = document.getElementById(
+          "talent4LevelContainer"
+        );
+        const talent5 = document.getElementById("talent5");
+        const talent5LevelContainer = document.getElementById(
+          "talent5LevelContainer"
+        );
+
+        talent4.addEventListener("change", function () {
+          talent4LevelContainer.classList.toggle("hidden", !this.checked);
+          calculateDamage();
+        });
+
+        talent5.addEventListener("change", function () {
+          talent5LevelContainer.classList.toggle("hidden", !this.checked);
+          calculateDamage();
+        });
+
+        // 模组系统控制
+        const moduleToggles = [
+          {
+            enabled: document.getElementById("module1Enabled"),
+            levels: document.getElementById("module1Levels"),
+          },
+          {
+            enabled: document.getElementById("module2Enabled"),
+            levels: document.getElementById("module2Levels"),
+          },
+          {
+            enabled: document.getElementById("module3Enabled"),
+            levels: document.getElementById("module3Levels"),
+          },
+          {
+            enabled: document.getElementById("module4Enabled"),
+            levels: document.getElementById("module4Levels"),
+          },
+          {
+            enabled: document.getElementById("module5Enabled"),
+            levels: document.getElementById("module5Levels"),
+          },
+          {
+            enabled: document.getElementById("module6Enabled"),
+            levels: document.getElementById("module6Levels"),
+          },
+        ];
+
+        moduleToggles.forEach((module) => {
+          module.enabled.addEventListener("change", function () {
+            module.levels.classList.toggle("hidden", !this.checked);
+            calculateDamage();
+          });
+        });
+
+        // 为所有模组等级选择添加事件监听
+        const moduleLevelRadios = document.querySelectorAll(
+          'input[type="radio"][name^="module"]'
+        );
+        moduleLevelRadios.forEach((radio) => {
+          radio.addEventListener("change", calculateDamage);
+        });
+
+        // 套装系统事件监听
+        const setCheckboxes = [
+          document.getElementById("weaponSet"),
+          document.getElementById("twoPieceSet"),
+          document.getElementById("fourPieceSet"),
+        ];
+
+        setCheckboxes.forEach((checkbox) => {
+          checkbox.addEventListener("change", calculateDamage);
+        });
+
+        // 增益系统控制
+        const buffToggles = [
+          {
+            enabled: document.getElementById("buff3Enabled"),
+            settings: document.getElementById("buff3Settings"),
+          },
+          {
+            enabled: document.getElementById("buff4Enabled"),
+            settings: document.getElementById("buff4Settings"),
+          },
+        ];
+
+        buffToggles.forEach((buff) => {
+          buff.enabled.addEventListener("change", function () {
+            buff.settings.classList.toggle("hidden", !this.checked);
+            calculateDamage();
+          });
+        });
+
+        // 为预设增益的输入添加事件监听
+        const buffInputs = document.querySelectorAll(
+          "#buff3Value, #buff4Value"
+        );
+        buffInputs.forEach((input) => {
+          input.addEventListener("change", calculateDamage);
+          input.addEventListener("input", calculateDamage);
+        });
+
+        // 自定义增益功能
+        function setupCustomBuffEvents(buffElement) {
+          // 启用状态切换
+          const enabledCheckbox = buffElement.querySelector(
+            ".custom-buff-enabled"
+          );
+          const settingsContainer = buffElement.querySelector(
+            ".custom-buff-settings"
+          );
+
+          // 增益名称输入事件
+          const nameInput = buffElement.querySelector(".custom-buff-name");
+          nameInput.addEventListener("input", calculateDamage);
+
+          // 启用状态切换事件
+          enabledCheckbox.addEventListener("change", function () {
+            settingsContainer.classList.toggle("hidden", !this.checked);
+            calculateDamage();
+          });
+
+          // 删除增益按钮
+          const deleteBtn = buffElement.querySelector(".delete-buff-btn");
+          deleteBtn.addEventListener("click", function () {
+            // 确保至少保留一个自定义增益
+            if (document.querySelectorAll(".custom-buff").length > 1) {
+              buffElement.remove();
+              calculateDamage();
+            } else {
+              // 提示用户至少保留一个
+              deleteBtn.classList.add("text-yellow-400");
+              setTimeout(() => {
+                deleteBtn.classList.remove("text-yellow-400");
+              }, 500);
+            }
+          });
+
+          // 添加属性按钮
+          const addPropertyBtn = buffElement.querySelector(".add-property-btn");
+          addPropertyBtn.addEventListener("click", function () {
+            const propertiesContainer =
+              buffElement.querySelector(".buff-properties");
+
+            // 创建新属性行
+            const newProperty = document.createElement("div");
+            newProperty.className = "grid grid-cols-3 gap-2 mb-1 buff-property";
+            newProperty.innerHTML = `
+                        <div>
+                            <label class="block text-xs text-light/70 mb-0.5">乘区</label>
+                            <select class="w-full bg-dark/50 border border-accent/20 rounded px-2 py-1 text-xs text-light custom-buff-region">
+                                <option value="physAtk">物理攻击</option>
+                                <option value="elemAtk">元素攻击</option>
+                                <option value="refineAtk">精炼攻击</option>
+                                <option value="meleeDmg">近距离伤害%</option>
+                                <option value="bossDmg">首领伤害%</option>
+                                <option value="vulnDmg">易伤伤害%</option>
+                                <option value="skillDmg">技能伤害%</option>
+                                <option value="physDmg">物理伤害%</option>
+                                <option value="allRound">全能%</option>
+                                <option value="elemBonus">元素加成%</option>
+                                <option value="critDmg">暴击伤害%</option>
+                                <option value="critRate">暴击%</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-light/70 mb-0.5">计算方式</label>
+                            <select class="w-full bg-dark/50 border border-accent/20 rounded px-2 py-1 text-xs text-light custom-buff-calc">
+                                <option value="add">加法 (+X)</option>
+                                <option value="multiply">乘法 (×X)</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="block text-xs text-light/70 mb-0.5">数值</label>
+                            <div class="flex">
+                                <input type="number" class="w-full bg-dark/50 border border-accent/20 rounded-l px-2 py-1 text-xs text-light custom-buff-value" min="0" step="0.01" value="10">
+                                <button class="delete-property-btn bg-dark/50 border border-accent/20 border-l-0 rounded-r px-1 text-light/60 hover:text-red-400 transition-all-300">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+
+            propertiesContainer.appendChild(newProperty);
+
+            // 为新属性添加事件监听
+            setupPropertyEvents(newProperty);
+            calculateDamage();
+          });
+
+          // 为现有属性添加事件监听
+          buffElement
+            .querySelectorAll(".buff-property")
+            .forEach(setupPropertyEvents);
+        }
+
+        // 设置单个属性项的事件
+        function setupPropertyEvents(propertyElement) {
+          // 为输入和选择框添加事件
+          const inputs = propertyElement.querySelectorAll("select, input");
+          inputs.forEach((input) => {
+            input.addEventListener("change", calculateDamage);
+            input.addEventListener("input", calculateDamage);
+          });
+
+          // 删除属性按钮
+          const deleteBtn = propertyElement.querySelector(
+            ".delete-property-btn"
+          );
+          deleteBtn.addEventListener("click", function () {
+            // 确保至少保留一个属性
+            const properties =
+              propertyElement.parentElement.querySelectorAll(".buff-property");
+            if (properties.length > 1) {
+              propertyElement.remove();
+              calculateDamage();
+            } else {
+              // 提示用户至少保留一个属性
+              deleteBtn.classList.add("text-yellow-400");
+              setTimeout(() => {
+                deleteBtn.classList.remove("text-yellow-400");
+              }, 500);
+            }
+          });
+        }
+
+        // 初始化现有自定义增益的事件
+        document
+          .querySelectorAll(".custom-buff")
+          .forEach(setupCustomBuffEvents);
+
+        // 添加新自定义增益按钮
+        let customBuffCount = 1;
+        document
+          .getElementById("addCustomBuffBtn")
+          .addEventListener("click", function () {
+            customBuffCount++;
+            const container = document.getElementById("customBuffsContainer");
+
+            const newBuff = document.createElement("div");
+            newBuff.className =
+              "bg-dark/30 rounded p-2 border border-accent/10 custom-buff mt-2";
+            newBuff.innerHTML = `
+                    <div class="flex items-center justify-between mb-1">
+                        <div class="flex items-center">
+                            <input type="text" placeholder="输入增益名称" class="bg-dark/70 border border-accent/20 rounded px-2 py-0.5 text-xs text-light mr-2 w-36 custom-buff-name" value="我的增益 #${customBuffCount}">
+                        </div>
+                        <div class="flex items-center">
+                            <label class="relative inline-flex items-center cursor-pointer mr-2">
+                                <input type="checkbox" class="sr-only peer custom-buff-enabled">
+                                <div class="w-8 h-4 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[0.5px] after:left-[0.5px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-accent"></div>
+                            </label>
+                            <button class="delete-buff-btn text-light/60 hover:text-red-400 transition-all-300">
+                                <i class="fa fa-trash-o"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="custom-buff-settings hidden">
+                        <div class="space-y-2 buff-properties">
+                            <div class="grid grid-cols-3 gap-2 mb-1 buff-property">
+                                <div>
+                                    <label class="block text-xs text-light/70 mb-0.5">乘区</label>
+                                    <select class="w-full bg-dark/50 border border-accent/20 rounded px-2 py-1 text-xs text-light custom-buff-region">
+                                        <option value="physAtk">物理攻击</option>
+                                        <option value="elemAtk">元素攻击</option>
+                                        <option value="refineAtk">精炼攻击</option>
+                                        <option value="meleeDmg">近距离伤害%</option>
+                                        <option value="bossDmg">首领伤害%</option>
+                                        <option value="vulnDmg">易伤伤害%</option>
+                                        <option value="skillDmg">技能伤害%</option>
+                                        <option value="physDmg">物理伤害%</option>
+                                        <option value="allRound">全能%</option>
+                                        <option value="elemBonus">元素加成%</option>
+                                        <option value="critDmg">暴击伤害%</option>
+                                        <option value="critRate">暴击%</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-light/70 mb-0.5">计算方式</label>
+                                    <select class="w-full bg-dark/50 border border-accent/20 rounded px-2 py-1 text-xs text-light custom-buff-calc">
+                                        <option value="add">加法 (+X)</option>
+                                        <option value="multiply">乘法 (×X)</option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="block text-xs text-light/70 mb-0.5">数值</label>
+                                    <div class="flex">
+                                        <input type="number" class="w-full bg-dark/50 border border-accent/20 rounded-l px-2 py-1 text-xs text-light custom-buff-value" min="0" step="0.01" value="10">
+                                        <button class="delete-property-btn bg-dark/50 border border-accent/20 border-l-0 rounded-r px-1 text-light/60 hover:text-red-400 transition-all-300">
+                                            <i class="fa fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="add-property-btn w-full mt-1 bg-accent/10 hover:bg-accent/20 text-light font-medium py-1 px-2 rounded transition-all-300 text-xs flex items-center justify-center">
+                            <i class="fa fa-plus mr-1"></i>添加属性
+                        </button>
+                    </div>
+                `;
+
+            container.appendChild(newBuff);
+            setupCustomBuffEvents(newBuff);
+          });
+
+        // 首领伤害开关事件
+        const bossDmgToggle = document.getElementById("bossDmgToggle");
+        bossDmgToggle.addEventListener("change", calculateDamage);
+
+        // 所有输入框变化时重新计算
+        const inputElements = document.querySelectorAll('input[type="number"]');
+        inputElements.forEach((input) => {
+          input.addEventListener("input", calculateDamage);
+        });
+
+        // 所有天赋开关变化时重新计算
+        const talentCheckboxes = document.querySelectorAll(
+          'input[type="checkbox"][id^="talent"]'
+        );
+        talentCheckboxes.forEach((checkbox) => {
+          checkbox.addEventListener("change", calculateDamage);
+        });
+
+        // 计算按钮点击事件
+        const calculateBtn = document.getElementById("calculateBtn");
+        calculateBtn.addEventListener("click", function () {
+          this.classList.add("scale-[0.95]");
+          setTimeout(() => {
+            this.classList.remove("scale-[0.95]");
+          }, 150);
+
+          calculateDamage();
+        });
+
+        // 期望伤害显示切换功能
+        let showExpected = false;
+        document
+          .getElementById("toggleExpectedBtn")
+          .addEventListener("click", function () {
+            showExpected = !showExpected;
+            const expectedContainer =
+              document.getElementById("expectedDmg").parentElement;
+            expectedContainer.classList.toggle("hidden", !showExpected);
+            this.innerHTML = showExpected
+              ? '<i class="fa fa-eye-slash mr-1"></i>隐藏期望伤害'
+              : '<i class="fa fa-eye mr-1"></i>显示期望伤害';
+          });
+
+        // 初始化图表
+        const ctx = document.getElementById("damageChart").getContext("2d");
+        const damageChart = new Chart(ctx, {
+          type: "doughnut",
+          data: {
+            labels: ["物理攻击", "元素攻击", "精炼攻击", "技能附加"],
+            datasets: [
+              {
+                data: [0, 0, 0, 0],
+                backgroundColor: ["#6D28D9", "#A78BFA", "#F59E0B", "#7C3AED"],
+                borderWidth: 0,
+                hoverOffset: 5,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: "bottom",
+                labels: {
+                  color: "rgba(237, 233, 254, 0.8)",
+                  font: { size: 9 },
+                  padding: 8,
+                },
+              },
+              tooltip: {
+                backgroundColor: "rgba(30, 27, 75, 0.9)",
+                titleColor: "#F59E0B",
+                bodyColor: "#EDE9FE",
+                borderColor: "rgba(124, 58, 237, 0.5)",
+                borderWidth: 1,
+                padding: 6,
+                displayColors: false,
+                callbacks: {
+                  label: function (context) {
+                    return `${
+                      context.label
+                    }: ${context.raw.toLocaleString()} (${(
+                      (context.raw /
+                        context.dataset.data.reduce((a, b) => a + b, 0)) *
+                      100
+                    ).toFixed(1)}%)`;
+                  },
+                },
+              },
+            },
+            cutout: "70%",
+            animation: { duration: 500 },
+          },
+        });
+
+        // 详细数据按钮
+        const detailBtn = document.getElementById("detailBtn");
+        const detailModal = document.getElementById("detailModal");
+        const closeModalBtn = document.getElementById("closeModalBtn");
+
+        detailBtn.addEventListener("click", function () {
+          detailModal.classList.remove("hidden");
+        });
+
+        closeModalBtn.addEventListener("click", function () {
+          detailModal.classList.add("hidden");
+        });
+
+        // 点击模态框外部关闭
+        detailModal.addEventListener("click", function (e) {
+          if (e.target === detailModal) {
+            detailModal.classList.add("hidden");
+          }
+        });
+
+        // 伤害构成变量
+        let damageDetails = {
+          physAtkContribution: 0,
+          elemAtkContribution: 0,
+          refineAtkContribution: 0,
+          skillAddContribution: 0,
+          masteryContribution: 0,
+          talentsContribution: 0,
+          modulesContribution: 0,
+          setsContribution: 0,
+          buffsContribution: 0,
+          publicMulti: 0,
+          allRoundMulti: 0,
+          elemBonus: 0,
+          critDmg: 0,
+          defenseFactor: 0,
+          critDefenseFactor: 0,
+        };
+
+        // 计算伤害的函数
+        function calculateDamage() {
+          // 获取基础属性值
+          let physAtk =
+            parseFloat(document.getElementById("physAtk").value) || 0;
+          let elemAtk =
+            parseFloat(document.getElementById("elemAtk").value) || 0;
+          let refineAtk =
+            parseFloat(document.getElementById("refineAtk").value) || 0;
+          let masteryInput =
+            parseFloat(document.getElementById("mastery").value) || 0;
+          let thunderSeal =
+            parseInt(document.getElementById("thunderSeal").value) || 0;
+
+          // 雷之印为0时，精通%不生效
+          let mastery = thunderSeal > 0 ? masteryInput : 0;
+
+          // 公共乘区属性
+          let meleeDmg =
+            parseFloat(document.getElementById("meleeDmg").value) || 0;
+          let bossDmg =
+            parseFloat(document.getElementById("bossDmg").value) || 0;
+          let vulnDmg =
+            parseFloat(document.getElementById("vulnDmg").value) || 0;
+          let skillDmg =
+            parseFloat(document.getElementById("skillDmg").value) || 0;
+          let physDmg =
+            parseFloat(document.getElementById("physDmg").value) || 0;
+
+          // 独立乘区属性
+          let allRound =
+            parseFloat(document.getElementById("allRound").value) || 0;
+          let elemBonus =
+            parseFloat(document.getElementById("elemBonus").value) || 0;
+          let critDmg =
+            parseFloat(document.getElementById("critDmg").value) || 0;
+          let critRate =
+            parseFloat(document.getElementById("critRate").value) || 0;
+
+          // 怪物防御
+          let monsterDefense =
+            parseFloat(document.getElementById("monsterDefense").value) || 2785;
+
+          // 获取选中的技能
+          const activeSkill = parseInt(
+            document.getElementById("activeSkill").value
+          );
+          let skillMulti, skillAdd;
+
+          if (activeSkill === 1) {
+            skillMulti =
+              parseFloat(document.getElementById("skill1Multi").value) || 0;
+            skillAdd =
+              parseFloat(document.getElementById("skill1Add").value) || 0;
+          } else if (activeSkill === 2) {
+            skillMulti =
+              parseFloat(document.getElementById("skill2Multi").value) || 0;
+            skillAdd =
+              parseFloat(document.getElementById("skill2Add").value) || 0;
+          } else {
+            skillMulti =
+              parseFloat(document.getElementById("skill3Multi").value) || 0;
+            skillAdd =
+              parseFloat(document.getElementById("skill3Add").value) || 0;
+          }
+
+          // 获取天赋状态
+          const talent1 = document.getElementById("talent1").checked;
+          const talent2 = document.getElementById("talent2").checked;
+          const talent3 = document.getElementById("talent3").checked;
+          const talent4 = document.getElementById("talent4").checked;
+          const talent4Level =
+            parseInt(document.getElementById("talent4Level").value) || 0;
+          const talent5 = document.getElementById("talent5").checked;
+          const talent5Level =
+            parseInt(document.getElementById("talent5Level").value) || 0;
+          const talent6 = document.getElementById("talent6").checked;
+          const talent7 = document.getElementById("talent7").checked;
+          const talent8 = document.getElementById("talent8").checked;
+          const talent10 = document.getElementById("talent10").checked; // 雷印亲和
+          const talent11 = document.getElementById("talent11").checked; // 决斗意识
+          const talent12 = document.getElementById("talent12").checked; // 锐击天赋
+
+          // 应用天赋效果（影响暴击率的天赋先计算）
+          if (activeSkill === 1 && talent2) {
+            critRate += 22;
+          }
+
+          // 其他天赋效果
+          let talentBonus = 0;
+          if (talent7) {
+            elemBonus += 10;
+            talentBonus += 10;
+          }
+          if (talent8) {
+            critDmg += 10;
+            talentBonus += 10;
+          }
+          if (talent4) {
+            vulnDmg += talent4Level * 2;
+            talentBonus += talent4Level * 2;
+          }
+          if (talent5) {
+            const defenseReduction = 1 - talent5Level * 0.06;
+            monsterDefense *= defenseReduction;
+            talentBonus += talent5Level * 6; // 保持talentBonus的计算用于显示
+          }
+          if (activeSkill === 1 && talent1 && thunderSeal === 6) {
+            skillDmg += 12;
+            talentBonus += 12;
+          }
+
+          // 天赋10：雷印亲和
+          if (talent10) {
+            elemBonus += thunderSeal * 1.5;
+            talentBonus += thunderSeal * 1.5;
+          }
+
+          // 天赋12：锐击
+          if (activeSkill === 2 && talent12) {
+            critRate += 10;
+            talentBonus += 10;
+          }
+
+          // 计算决斗意识的额外易伤
+          const duelAwarenessBonus = talent11 ? 20 : 0;
+
+          // 修改：将决斗意识加成直接加到公共乘区
+          if (talent11) {
+            vulnDmg += duelAwarenessBonus;
+            talentBonus += duelAwarenessBonus;
+          }
+
+          // 计算是否需要攻击两次（只做提示，不影响单次伤害值）
+          const isDoubleAttack = activeSkill === 1 && thunderSeal >= 3;
+          document
+            .getElementById("hitCount")
+            .classList.toggle("hidden", !isDoubleAttack);
+
+          // 首领伤害开关状态
+          const isBossDmgActive = bossDmgToggle.checked;
+          const currentBossDmg = isBossDmgActive ? bossDmg : 0;
+
+          // 应用套装效果
+          let setBonus = 0;
+          // 武器：暴击伤害+15%
+          if (document.getElementById("weaponSet").checked) {
+            critDmg += 15;
+            setBonus += 15;
+          }
+
+          // 2件套：启用技能居合斩时，技能伤害%+10%
+          if (
+            document.getElementById("twoPieceSet").checked &&
+            activeSkill === 1
+          ) {
+            skillDmg += 10;
+            setBonus += 10;
+          }
+
+          // 4件套：技能伤害%+6%
+          if (document.getElementById("fourPieceSet").checked) {
+            skillDmg += 6;
+            setBonus += 6;
+          }
+
+          // 应用模组效果
+          let moduleBonus = 0;
+          // 模组1：敏捷加持
+          if (document.getElementById("module1Enabled").checked) {
+            const level = document.querySelector(
+              'input[name="module1Level"]:checked'
+            )?.value;
+            if (level === "5") {
+              physDmg += 3.6;
+              moduleBonus += 3.6;
+            } else if (level === "6") {
+              physDmg += 6;
+              moduleBonus += 6;
+            }
+          }
+
+          // 模组2：特攻伤害加持
+          if (
+            document.getElementById("module2Enabled").checked &&
+            activeSkill === 1
+          ) {
+            const level = document.querySelector(
+              'input[name="module2Level"]:checked'
+            )?.value;
+            if (level === "5") {
+              elemBonus += 7.2;
+              moduleBonus += 7.2;
+            } else if (level === "6") {
+              elemBonus += 12;
+              moduleBonus += 12;
+            }
+          }
+
+          // 模组3：精英打击
+          if (document.getElementById("module3Enabled").checked) {
+            const level = document.querySelector(
+              'input[name="module3Level"]:checked'
+            )?.value;
+            if (level === "5") {
+              bossDmg += 3.9;
+              moduleBonus += 3.9;
+            } else if (level === "6") {
+              bossDmg += 6.6;
+              moduleBonus += 6.6;
+            }
+          }
+
+          // 模组4：暴击专注
+          if (document.getElementById("module4Enabled").checked) {
+            const level = document.querySelector(
+              'input[name="module4Level"]:checked'
+            )?.value;
+            if (level === "3") {
+              elemBonus += 0.44;
+              moduleBonus += 0.44;
+            } else if (level === "4") {
+              elemBonus += 0.88;
+              moduleBonus += 0.88;
+            } else if (level === "5") {
+              elemBonus += 1.32;
+              critDmg += 7.1;
+              moduleBonus += 8.42;
+            } else if (level === "6") {
+              elemBonus += 1.76;
+              critDmg += 12;
+              moduleBonus += 13.76;
+            }
+          }
+
+          // 模组5：极·伤害叠加
+          if (document.getElementById("module5Enabled").checked) {
+            const level = document.querySelector(
+              'input[name="module5Level"]:checked'
+            )?.value;
+            if (level === "5") {
+              vulnDmg += 6.6;
+              moduleBonus += 6.6;
+            } else if (level === "6") {
+              vulnDmg += 11;
+              moduleBonus += 11;
+            }
+          }
+
+          // 模组6：极·灵活身法
+          let physAtkMultiplier = 1;
+          if (document.getElementById("module6Enabled").checked) {
+            const level = document.querySelector(
+              'input[name="module6Level"]:checked'
+            )?.value;
+            if (level === "5") {
+              physAtkMultiplier = 1.06;
+              moduleBonus += 6;
+            } else if (level === "6") {
+              physAtkMultiplier = 1.1;
+              moduleBonus += 10;
+            }
+          }
+          physAtk *= physAtkMultiplier;
+
+          // 应用增益系统效果
+          let buffBonus = 0;
+          // 增益模板3：剧毒蜂巢
+          if (document.getElementById("buff3Enabled").checked) {
+            const buffValue =
+              parseFloat(document.getElementById("buff3Value").value) || 0;
+            vulnDmg += buffValue;
+            buffBonus += buffValue;
+          }
+
+          // 增益模板4：山贼头目
+          if (document.getElementById("buff4Enabled").checked) {
+            const buffValue =
+              parseFloat(document.getElementById("buff4Value").value) || 1;
+            physAtk *= buffValue;
+            buffBonus += (buffValue - 1) * 100;
+          }
+
+          // 应用自定义增益
+          document.querySelectorAll(".custom-buff").forEach((buff) => {
+            if (buff.querySelector(".custom-buff-enabled").checked) {
+              // 处理每个属性
+              buff.querySelectorAll(".buff-property").forEach((prop) => {
+                const region = prop.querySelector(".custom-buff-region").value;
+                const calcType = prop.querySelector(".custom-buff-calc").value;
+                const value =
+                  parseFloat(prop.querySelector(".custom-buff-value").value) ||
+                  0;
+
+                // 根据选择的乘区和计算方式应用增益
+                switch (region) {
+                  case "physAtk":
+                    if (calcType === "add") {
+                      physAtk += value;
+                      buffBonus += value;
+                    } else {
+                      physAtk *= value;
+                      buffBonus += (value - 1) * 100;
+                    }
+                    break;
+                  case "elemAtk":
+                    if (calcType === "add") {
+                      elemAtk += value;
+                      buffBonus += value;
+                    } else {
+                      elemAtk *= value;
+                      buffBonus += (value - 1) * 100;
+                    }
+                    break;
+                  case "refineAtk":
+                    if (calcType === "add") {
+                      refineAtk += value;
+                      buffBonus += value;
+                    } else {
+                      refineAtk *= value;
+                      buffBonus += (value - 1) * 100;
+                    }
+                    break;
+                  case "meleeDmg":
+                    if (calcType === "add") {
+                      meleeDmg += value;
+                      buffBonus += value;
+                    } else {
+                      meleeDmg *= value;
+                      buffBonus += (value - 1) * 100;
+                    }
+                    break;
+                  case "bossDmg":
+                    if (calcType === "add") {
+                      bossDmg += value;
+                      buffBonus += value;
+                    } else {
+                      bossDmg *= value;
+                      buffBonus += (value - 1) * 100;
+                    }
+                    break;
+                  case "vulnDmg":
+                    if (calcType === "add") {
+                      vulnDmg += value;
+                      buffBonus += value;
+                    } else {
+                      vulnDmg *= value;
+                      buffBonus += (value - 1) * 100;
+                    }
+                    break;
+                  case "skillDmg":
+                    if (calcType === "add") {
+                      skillDmg += value;
+                      buffBonus += value;
+                    } else {
+                      skillDmg *= value;
+                      buffBonus += (value - 1) * 100;
+                    }
+                    break;
+                  case "physDmg":
+                    if (calcType === "add") {
+                      physDmg += value;
+                      buffBonus += value;
+                    } else {
+                      physDmg *= value;
+                      buffBonus += (value - 1) * 100;
+                    }
+                    break;
+                  case "allRound":
+                    if (calcType === "add") {
+                      allRound += value;
+                      buffBonus += value;
+                    } else {
+                      allRound *= value;
+                      buffBonus += (value - 1) * 100;
+                    }
+                    break;
+                  case "elemBonus":
+                    if (calcType === "add") {
+                      elemBonus += value;
+                      buffBonus += value;
+                    } else {
+                      elemBonus *= value;
+                      buffBonus += (value - 1) * 100;
+                    }
+                    break;
+                  case "critDmg":
+                    if (calcType === "add") {
+                      critDmg += value;
+                      buffBonus += value;
+                    } else {
+                      critDmg *= value;
+                      buffBonus += (value - 1) * 100;
+                    }
+                    break;
+                  case "critRate":
+                    if (calcType === "add") {
+                      critRate += value;
+                      buffBonus += value;
+                    } else {
+                      critRate *= value;
+                      buffBonus += (value - 1) * 100;
+                    }
+                    break;
+                }
+              });
+            }
+          });
+
+          // 计算防御修正系数
+          let defenseFactor = 6500 / (monsterDefense + 6500);
+          let critDefenseFactor = defenseFactor;
+          if (activeSkill === 1 && talent6) {
+            critDefenseFactor = 6500 / (monsterDefense * 0.7 + 6500);
+          }
+
+          // 计算雷之印增伤比例
+          const thunderSealMulti = talent3 ? 0.28 : 0.25;
+
+          // 计算各项系数
+          const baseAttackNonCrit =
+            physAtk * defenseFactor + elemAtk + refineAtk;
+          const baseAttackCrit =
+            physAtk * critDefenseFactor + elemAtk + refineAtk;
+          const skillMultiplier = skillMulti / 100;
+          const thunderMasteryMulti =
+            1 + thunderSeal * thunderSealMulti + mastery * 0.025;
+
+          // 普通目标的公共乘数
+          const normalPublicMultiplier =
+            1 +
+            (meleeDmg + currentBossDmg + vulnDmg + skillDmg + physDmg) / 100;
+
+          const elementMultiplier = 1 + elemBonus / 100;
+          const allRoundMultiplier = 1 + allRound * 0.0035;
+          const allRoundAddition = allRound * 0.35; // 全能乘区加成显示值
+          let critDmgMultiplier = 1 + critDmg / 100;
+
+          // 天赋2：超额暴击转化为暴伤
+          let excessCrit = 0;
+          if (activeSkill === 1 && talent2 && critRate > 60) {
+            excessCrit = critRate - 60;
+            critDmgMultiplier += excessCrit / 100;
+          }
+
+          // 计算基础伤害（单次）
+          const baseDamageNonCrit =
+            baseAttackNonCrit * skillMultiplier * thunderMasteryMulti +
+            skillAdd;
+          const baseDamageCrit =
+            baseAttackCrit * skillMultiplier * thunderMasteryMulti + skillAdd;
+
+          // 计算普通目标伤害（单次）
+          const nonCritDamage =
+            baseDamageNonCrit *
+            normalPublicMultiplier *
+            elementMultiplier *
+            allRoundMultiplier;
+          const critDamage =
+            baseDamageCrit *
+            normalPublicMultiplier *
+            elementMultiplier *
+            allRoundMultiplier *
+            critDmgMultiplier;
+
+          // 更新UI显示（保留一位小数）
+          document.getElementById("nonCritDmg").textContent =
+            nonCritDamage.toFixed(1);
+          document.getElementById("critDmgResult").textContent =
+            critDamage.toFixed(1);
+
+          // 更新其他显示项
+          document.getElementById("baseDmg").textContent =
+            baseDamageNonCrit.toFixed(1);
+          document.getElementById("finalCritRate").textContent =
+            critRate.toFixed(2) + "%";
+          document.getElementById("publicMulti").textContent =
+            ((normalPublicMultiplier - 1) * 100).toFixed(2) + "%";
+          document.getElementById("allRoundMulti").textContent =
+            allRoundAddition.toFixed(2) + "%";
+          document.getElementById("elementBonus").textContent =
+            elemBonus.toFixed(2) + "%";
+
+          // 计算伤害构成
+          const physContribution =
+            physAtk * defenseFactor * skillMultiplier * thunderMasteryMulti;
+          const elemContribution =
+            elemAtk * skillMultiplier * thunderMasteryMulti;
+          const refineContribution =
+            refineAtk * skillMultiplier * thunderMasteryMulti;
+          const addContribution = skillAdd;
+
+          // 更新伤害构成数据
+          damageDetails = {
+            physAtkContribution: physContribution,
+            elemAtkContribution: elemContribution,
+            refineAtkContribution: refineContribution,
+            skillAddContribution: addContribution,
+            masteryContribution: (thunderMasteryMulti - 1) * 100,
+            talentsContribution: talentBonus,
+            modulesContribution: moduleBonus,
+            setsContribution: setBonus,
+            buffsContribution: buffBonus,
+            publicMulti: (normalPublicMultiplier - 1) * 100,
+            allRoundMulti: allRoundAddition,
+            elemBonus: elemBonus,
+            critDmg: critDmg,
+            defenseFactor: defenseFactor * 100,
+            critDefenseFactor: critDefenseFactor * 100,
+          };
+
+          // 更新伤害构成图表
+          damageChart.data.datasets[0].data = [
+            physContribution,
+            elemContribution,
+            refineContribution,
+            addContribution,
+          ];
+          // 计算期望伤害
+          const expectedDamage =
+            nonCritDamage * (1 - critRate / 100) +
+            critDamage * (critRate / 100);
+          document.getElementById("expectedDmg").textContent =
+            expectedDamage.toFixed(1);
+
+          damageChart.update();
+        }
+
+        // 计算循环伤害
+        function calculateCycleDamage() {
+          // 获取每个技能的攻击次数
+          const skill1Count =
+            parseInt(document.getElementById("skill1Count").value) || 0;
+          const skill2Count =
+            parseInt(document.getElementById("skill2Count").value) || 0;
+          const skill3Count =
+            parseInt(document.getElementById("skill3Count").value) || 0;
+
+          let totalDamage = 0;
+
+          // 保存当前激活的技能
+          const originalActiveSkill = parseInt(
+            document.getElementById("activeSkill").value
+          );
+
+          // 计算每个技能的期望伤害
+          const skillCounts = [skill1Count, skill2Count, skill3Count];
+          for (let i = 1; i <= 3; i++) {
+            const count = skillCounts[i - 1];
+            if (count <= 0) continue; // 如果攻击次数为0，则跳过该技能
+
+            // 设置当前技能为激活状态
+            document.getElementById("activeSkill").value = i;
+            updateSkillSelection();
+
+            // 重新计算伤害以获取该技能的期望伤害
+            calculateDamage();
+
+            // 获取期望伤害并累加到总伤害
+            const expectedDmg =
+              parseFloat(document.getElementById("expectedDmg").textContent) ||
+              0;
+            totalDamage += expectedDmg * count;
+          }
+
+          // 恢复原来的激活技能
+          document.getElementById("activeSkill").value = originalActiveSkill;
+          updateSkillSelection();
+
+          // 重新计算当前技能的伤害
+          calculateDamage();
+
+          // 显示循环总伤害
+          document.getElementById("cycleDmg").textContent =
+            totalDamage.toFixed(1);
+          document.getElementById("cycleResult").classList.remove("hidden");
+        }
+
+        // 为循环模拟按钮添加事件监听器
+        document
+          .getElementById("cycleSimBtn")
+          .addEventListener("click", calculateCycleDamage);
+
+        // 更新详细数据模态框
+        function updateDetailModal() {
+          document.getElementById(
+            "physAtkContribution"
+          ).textContent = `${damageDetails.physAtkContribution.toFixed(1)} (${(
+            (damageDetails.physAtkContribution /
+              damageChart.data.datasets[0].data.reduce((a, b) => a + b, 1)) *
+              100 || 0
+          ).toFixed(1)}%)`;
+
+          document.getElementById(
+            "elemAtkContribution"
+          ).textContent = `${damageDetails.elemAtkContribution.toFixed(1)} (${(
+            (damageDetails.elemAtkContribution /
+              damageChart.data.datasets[0].data.reduce((a, b) => a + b, 1)) *
+              100 || 0
+          ).toFixed(1)}%)`;
+
+          document.getElementById(
+            "refineAtkContribution"
+          ).textContent = `${damageDetails.refineAtkContribution.toFixed(
+            1
+          )} (${(
+            (damageDetails.refineAtkContribution /
+              damageChart.data.datasets[0].data.reduce((a, b) => a + b, 1)) *
+              100 || 0
+          ).toFixed(1)}%)`;
+
+          document.getElementById(
+            "skillAddContribution"
+          ).textContent = `${damageDetails.skillAddContribution.toFixed(1)} (${(
+            (damageDetails.skillAddContribution /
+              damageChart.data.datasets[0].data.reduce((a, b) => a + b, 1)) *
+              100 || 0
+          ).toFixed(1)}%)`;
+
+          document.getElementById(
+            "masteryContribution"
+          ).textContent = `${damageDetails.masteryContribution.toFixed(1)}%`;
+
+          document.getElementById(
+            "talentsContribution"
+          ).textContent = `${damageDetails.talentsContribution.toFixed(1)}%`;
+
+          document.getElementById(
+            "modulesContribution"
+          ).textContent = `${damageDetails.modulesContribution.toFixed(1)}%`;
+
+          document.getElementById(
+            "setsContribution"
+          ).textContent = `${damageDetails.setsContribution.toFixed(1)}%`;
+
+          document.getElementById(
+            "buffsContribution"
+          ).textContent = `${damageDetails.buffsContribution.toFixed(1)}%`;
+
+          document.getElementById(
+            "publicMultiDetail"
+          ).textContent = `${damageDetails.publicMulti.toFixed(1)}%`;
+
+          document.getElementById(
+            "allRoundDetail"
+          ).textContent = `${damageDetails.allRoundMulti.toFixed(1)}%`;
+
+          document.getElementById(
+            "elemBonusDetail"
+          ).textContent = `${damageDetails.elemBonus.toFixed(1)}%`;
+
+          document.getElementById(
+            "critDmgDetail"
+          ).textContent = `${damageDetails.critDmg.toFixed(1)}%`;
+
+          document.getElementById(
+            "defenseFactorDetail"
+          ).textContent = `${damageDetails.defenseFactor.toFixed(1)}%`;
+
+          document.getElementById(
+            "critDefenseFactorDetail"
+          ).textContent = `${damageDetails.critDefenseFactor.toFixed(1)}%`;
+        }
+
+        // 当点击详细数据按钮时更新模态框内容
+        detailBtn.addEventListener("click", updateDetailModal);
+
+        // 数据对比功能
+        const compareConfigBtn = document.getElementById("compareConfigBtn");
+        const compareModal = document.getElementById("compareModal");
+        const closeCompareModalBtn = document.getElementById(
+          "closeCompareModalBtn"
+        );
+        const compareConfigSelection = document.getElementById(
+          "compareConfigSelection"
+        );
+        const startCompareBtn = document.getElementById("startCompareBtn");
+        const compareResults = document.getElementById("compareResults");
+        const compareResultsContainer = document.getElementById(
+          "compareResultsContainer"
+        );
+
+        // 打开数据对比模态框
+        compareConfigBtn.addEventListener("click", function () {
+          loadCompareConfigSelection();
+          compareResults.classList.add("hidden");
+          compareModal.classList.remove("hidden");
+        });
+
+        // 关闭数据对比模态框
+        function closeCompareModal() {
+          compareModal.classList.add("hidden");
+        }
+
+        closeCompareModalBtn.addEventListener("click", closeCompareModal);
+
+        // 加载配置选择项
+        function loadCompareConfigSelection() {
+          compareConfigSelection.innerHTML = "";
+          const savedConfigs =
+            JSON.parse(localStorage.getItem("tachiConfigs")) || {};
+
+          // 添加默认配置选项
+          const defaultOption = document.createElement("div");
+          defaultOption.className =
+            "flex items-center bg-dark/50 rounded p-2 border border-accent/20";
+          defaultOption.innerHTML = `
+                    <input type="checkbox" id="compare_default" class="mr-2 compare-config-checkbox" value="default">
+                    <label for="compare_default" class="text-light">默认配置</label>
+                `;
+          compareConfigSelection.appendChild(defaultOption);
+
+          // 添加保存的配置
+          Object.keys(savedConfigs).forEach((name) => {
+            const option = document.createElement("div");
+            option.className =
+              "flex items-center bg-dark/50 rounded p-2 border border-accent/20";
+            option.innerHTML = `
+                        <input type="checkbox" id="compare_${name}" class="mr-2 compare-config-checkbox" value="${name}">
+                        <label for="compare_${name}" class="text-light">${name}</label>
+                    `;
+            compareConfigSelection.appendChild(option);
+          });
+        }
+
+        // 开始对比
+        startCompareBtn.addEventListener("click", function () {
+          const selectedConfigs = [];
+          const checkboxes = document.querySelectorAll(
+            ".compare-config-checkbox:checked"
+          );
+
+          if (checkboxes.length < 2) {
+            alert("请至少选择两个配置进行对比");
+            return;
+          }
+
+          checkboxes.forEach((checkbox) => {
+            selectedConfigs.push(checkbox.value);
+          });
+
+          performComparison(selectedConfigs);
+        });
+
+        // 执行对比
+        function performComparison(configNames) {
+          const savedConfigs =
+            JSON.parse(localStorage.getItem("tachiConfigs")) || {};
+
+          // 创建表格头部
+          let tableHTML = `
+                    <table class="min-w-full bg-neutral-dark/60 rounded-lg border border-accent/20">
+                        <thead>
+                            <tr>
+                                <th class="border-b border-accent/20 px-4 py-2 text-left">项目</th>
+                `;
+
+          // 添加配置名称作为列标题
+          configNames.forEach((name) => {
+            const displayName = name === "default" ? "默认配置" : name;
+            tableHTML += `<th class="border-b border-accent/20 px-4 py-2 text-left">${displayName}</th>`;
+          });
+
+          tableHTML += `</tr></thead><tbody>`;
+
+          // 为每个配置计算伤害结果
+          const results = {};
+          configNames.forEach((name) => {
+            if (name === "default") {
+              resetToDefaultConfig();
+            } else {
+              loadConfig(name);
+            }
+            calculateDamage();
+
+            // 保存当前结果
+            results[name] = {
+              nonCritDmg: document.getElementById("nonCritDmg").textContent,
+              critDmgResult:
+                document.getElementById("critDmgResult").textContent,
+              baseDmg: document.getElementById("baseDmg").textContent,
+              finalCritRate:
+                document.getElementById("finalCritRate").textContent,
+              publicMulti: document.getElementById("publicMulti").textContent,
+              allRoundMulti:
+                document.getElementById("allRoundMulti").textContent,
+              elementBonus: document.getElementById("elementBonus").textContent,
+            };
+          });
+
+          // 定义要对比的项目
+          const comparisonItems = [
+            { key: "nonCritDmg", label: "非暴击伤害" },
+            { key: "critDmgResult", label: "暴击伤害" },
+            { key: "baseDmg", label: "基础伤害" },
+            { key: "finalCritRate", label: "暴击率" },
+            { key: "publicMulti", label: "公共乘区加成" },
+            { key: "allRoundMulti", label: "全能乘区加成" },
+            { key: "elementBonus", label: "元素加成" },
+          ];
+
+          // 生成表格行
+          comparisonItems.forEach((item) => {
+            tableHTML += `
+                        <tr>
+                            <td class="border-b border-accent/10 px-4 py-2">${item.label}</td>
+                    `;
+
+            configNames.forEach((name) => {
+              tableHTML += `<td class="border-b border-accent/10 px-4 py-2">${
+                results[name][item.key]
+              }</td>`;
+            });
+
+            tableHTML += `</tr>`;
+          });
+
+          tableHTML += `</tbody></table>`;
+
+          // 显示结果
+          compareResultsContainer.innerHTML = tableHTML;
+          compareResults.classList.remove("hidden");
+        }
+
+        // 初始化计算
+        calculateDamage();
+      });
+    </script>
+  </body>
+</html>
