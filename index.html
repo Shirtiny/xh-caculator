@@ -58,7 +58,6 @@
                     计算器
                 </h1>
             </div>
-           
         </header>
         
         <!-- 配置管理区域 -->
@@ -391,8 +390,8 @@
                         
                         <div class="天赋-item flex items-center justify-between bg-dark/30 rounded p-2 border border-accent/10">
                             <div>
-                                <h3 class="font-medium text-sm">决斗意识</h3>
-                                <p class="text-xs text-light/70">敌人>80%血量时，易伤+20%</p>
+                                <h3 class="font-medium text-sm">回溯冥想</h3>
+                                <p class="text-xs text-light/70">无穷回豆翻倍，雷之印效果-12.5%</p>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" id="talent11" class="sr-only peer">
@@ -593,7 +592,7 @@
                         <!-- 模组6：极·灵活身法 -->
                         <div class="bg-dark/30 rounded p-2 border border-accent/10">
                             <div class="flex items-center justify-between mb-1">
-                                <h3 class="font-medium text-sm">极·灵活身法<span class="text-green-500">（注：攻击力高）</span></h3>
+                                <h3 class="font-medium text-sm">极·灵活身法<span class="text-green-500">（攻击力高）</span></h3>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" id="module6Enabled" class="sr-only peer">
                                     <div class="w-8 h-4 bg-neutral-dark rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[0.5px] after:left-[0.5px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-accent"></div>
@@ -776,19 +775,6 @@
                         <div class="text-2xl font-bold text-secondary text-shadow-glow" id="critDmgResult">0.0</div>
                     </div>
                     
-                    <!-- 高血量目标伤害 -->
-                    <div class="mb-3 hidden" id="highHpDmgContainer">
-                        <h3 class="text-xs text-light/70 mb-1">高血量目标（决斗意识生效）</h3>
-                        <div class="mb-0.5">
-                            <h3 class="text-xs text-light/70 mb-0.5">非暴击伤害</h3>
-                            <div class="text-xl font-bold text-white text-shadow-glow" id="highHpNonCritDmg">0.0</div>
-                        </div>
-                        
-                        <div class="mt-1">
-                            <h3 class="text-xs text-light/70 mb-0.5">暴击伤害</h3>
-                            <div class="text-xl font-bold text-secondary text-shadow-glow" id="highHpCritDmg">0.0</div>
-                        </div>
-                    </div>
                     
                     <div class="grid grid-cols-2 gap-2 text-sm">
                         <div class="bg-dark/50 rounded p-2 border border-accent/20">
@@ -2133,16 +2119,15 @@
                     talentBonus += 20;
                 }
 
+                // 天赋11：回溯冥想效果
+                if (talent11) {
+                    // 计算回溯冥想对总伤害的贡献
+                    const retroMeditationEffect = thunderSeal * 0.125 * 100; // 转换为百分比显示
+                    talentBonus += retroMeditationEffect;
+                }
 
                 
-                // 计算决斗意识的额外易伤
-                const duelAwarenessBonus = talent11 ? 20 : 0;
-                
-                // 修改：将决斗意识加成直接加到公共乘区
-                if (talent11) {
-                    vulnDmg += duelAwarenessBonus;
-                    talentBonus += duelAwarenessBonus;
-                }
+                // 天赋11：回溯冥想效果已通过调整雷之印增伤比例实现
                 
                 // 计算是否需要攻击两次（只做提示，不影响单次伤害值）
                 const isDoubleAttack = activeSkill === 1 && thunderSeal >= 3;
@@ -2404,7 +2389,11 @@
                 }
                 
                 // 计算雷之印增伤比例
-                const thunderSealMulti = talent3 ? 0.28 : 0.25;
+                let thunderSealMulti = talent3 ? 0.28 : 0.25;
+                // 回溯冥想效果：降低雷之印增伤比例
+                if (talent11) {
+                    thunderSealMulti -= 0.125;
+                }
                 
                 // 计算各项系数
                 const baseAttackNonCrit = physAtk * defenseFactor + elemAtk + refineAtk;
@@ -2895,9 +2884,16 @@
                                            min="0" value="1000">
                                 </div>
                                 
-                                <button id="calculate-total" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-4 rounded-lg transition-colors mt-2">
-                                    <i class="fa fa-calculator mr-2"></i>计算最优分配
-                                </button>
+                                <div class="flex items-center justify-between">
+                                    <button id="retro-meditation-toggle-total" class="flex items-center px-4 py-2 bg-gray-700 hover:bg-gray-600 text-light rounded-lg transition-colors">
+                                        <i class="fa fa-moon mr-2"></i>回溯冥想
+                                        <span id="retro-meditation-status-total" class="ml-2 text-sm text-light/70">未启用</span>
+                                    </button>
+                                    
+                                    <button id="calculate-total" class="bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                                        <i class="fa fa-calculator mr-2"></i>计算
+                                    </button>
+                                </div>
                             </div>
                             
                             <!-- 现有加成调整模式输入 -->
@@ -2940,9 +2936,16 @@
                                            min="0" value="1000">
                                 </div>
                                 
-                                <button id="calculate-percent" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-4 rounded-lg transition-colors mt-2">
-                                    <i class="fa fa-calculator mr-2"></i>计算最优调整方案
-                                </button>
+                                <div class="flex items-center justify-between">
+                                    <button id="retro-meditation-toggle" class="flex items-center px-4 py-2 bg-gray-700 hover:bg-gray-600 text-light rounded-lg transition-colors">
+                                        <i class="fa fa-moon mr-2"></i>回溯冥想
+                                        <span id="retro-meditation-status" class="ml-2 text-sm text-light/70">未启用</span>
+                                    </button>
+                                    
+                                    <button id="calculate-percent" class="bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                                        <i class="fa fa-calculator mr-2"></i>计算
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -3544,12 +3547,24 @@
         }
         
         // 计算效果值（用于比较）
+        // 全局变量，用于跟踪是否启用回溯冥想
+        let isRetroMeditationEnabled = false;
+        
         function calculateEffectiveness(masteryValue, versatilityValue, attack) {
             const masteryPercent = calculateMasteryPercentFromValue(masteryValue) / 100;
             const versatilityPercent = calculateVersatilityPercentFromValue(versatilityValue) / 100;
             
-            const factorA = 2.1 * attack * (2.68 + 2.5 * masteryPercent) + 600;
-            const factorB = 4.9 * attack * (2.68 + 2.5 * masteryPercent) + 1400;
+            let factorA, factorB;
+            
+            if (isRetroMeditationEnabled) {
+                // 回溯冥想公式
+                factorA = 2.1 * attack * (1.93 + 2.5 * masteryPercent) + 600;
+                factorB = 4.9 * attack * (1.93 + 2.5 * masteryPercent) + 1400;
+            } else {
+                // 标准公式
+                factorA = 2.1 * attack * (2.68 + 2.5 * masteryPercent) + 600;
+                factorB = 4.9 * attack * (2.68 + 2.5 * masteryPercent) + 1400;
+            }
             
             return (1 + 0.35 * versatilityPercent) * (0.55 * factorA + 0.30 * factorB);
         }
@@ -3921,6 +3936,44 @@
         // 绑定计算按钮事件
         document.getElementById('calculate-total').addEventListener('click', updateTotalModeResults);
         document.getElementById('calculate-percent').addEventListener('click', updatePercentModeResults);
+        
+        // 绑定回溯冥想切换按钮事件
+        document.getElementById('retro-meditation-toggle').addEventListener('click', function() {
+            isRetroMeditationEnabled = !isRetroMeditationEnabled;
+            const statusElement = document.getElementById('retro-meditation-status');
+            const statusElementTotal = document.getElementById('retro-meditation-status-total');
+            
+            if (isRetroMeditationEnabled) {
+                this.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+                this.classList.add('bg-secondary', 'hover:bg-secondary/90');
+                statusElement.textContent = '已启用';
+                statusElementTotal.textContent = '已启用';
+            } else {
+                this.classList.remove('bg-secondary', 'hover:bg-secondary/90');
+                this.classList.add('bg-gray-700', 'hover:bg-gray-600');
+                statusElement.textContent = '未启用';
+                statusElementTotal.textContent = '未启用';
+            }
+        });
+        
+        // 总属性值模式的回溯冥想切换按钮
+        document.getElementById('retro-meditation-toggle-total').addEventListener('click', function() {
+            isRetroMeditationEnabled = !isRetroMeditationEnabled;
+            const statusElement = document.getElementById('retro-meditation-status');
+            const statusElementTotal = document.getElementById('retro-meditation-status-total');
+            
+            if (isRetroMeditationEnabled) {
+                this.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+                this.classList.add('bg-secondary', 'hover:bg-secondary/90');
+                statusElement.textContent = '已启用';
+                statusElementTotal.textContent = '已启用';
+            } else {
+                this.classList.remove('bg-secondary', 'hover:bg-secondary/90');
+                this.classList.add('bg-gray-700', 'hover:bg-gray-600');
+                statusElement.textContent = '未启用';
+                statusElementTotal.textContent = '未启用';
+            }
+        });
         
         // 属性分配优化功能结束
         

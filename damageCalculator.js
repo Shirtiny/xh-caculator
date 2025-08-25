@@ -9,6 +9,11 @@ function calculateDamage(config) {
   // When Thunder Seal is 0, Mastery % is not effective
   let mastery = thunderSeal > 0 ? masteryInput : 0;
 
+  // Talent 14: Proficiency - increases base skill multiplier mastery by +6%
+  if (talent14) {
+    mastery += 6;
+  }
+
   // Common area attributes
   let meleeDmg = parseFloat(config.meleeDmg) || 0;
   let bossDmg = parseFloat(config.bossDmg) || 0;
@@ -53,7 +58,8 @@ function calculateDamage(config) {
   const talent8 = config.talent8;
   const talent10 = config.talent10; // Thunder Seal Affinity
   const talent11 = config.talent11; // Duel Awareness
-  const talent12 = config.talent12; // Sharp Strike talent
+  const talent12 = config.talent12; // Sharp Strike & Sharp Sword talent
+  const talent14 = config.talent14; // Proficiency talent
 
   // Apply talent effects (talents affecting crit rate are calculated first)
   if (activeSkill === 1 && talent2) {
@@ -163,7 +169,7 @@ function calculateDamage(config) {
     }
   }
 
-  // Module 5: Extreme Damage Stacking
+  // Module 5: Extreme Damage Stacking (High Attack Power)
   if (config.module5Enabled) {
     const level = config.module5Level;
     if (level === "5") {
@@ -173,7 +179,7 @@ function calculateDamage(config) {
     }
   }
 
-  // Module 6: Extreme Flexible Movement
+  // Module 6: Extreme Flexible Movement (Note: High Attack Power)
   let physAtkMultiplier = 1;
   if (config.module6Enabled) {
     const level = config.module6Level;
@@ -222,8 +228,8 @@ function calculateDamage(config) {
   let critDmgMultiplier = 1 + critDmg / 100;
 
   // Talent 2: Excess crit is converted to crit damage
-  if (activeSkill === 1 && talent2 && critRate > 60) {
-    const excessCrit = critRate - 60;
+  if (activeSkill === 1 && talent2 && critRate > 65.28) {
+    const excessCrit = critRate - 65.28;
     critDmgMultiplier += excessCrit / 100;
   }
 
