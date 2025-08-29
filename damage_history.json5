@@ -1,7 +1,7 @@
 {
-  timestamp: '2025-08-29T05:47:27.770Z',
-  nonCritDamage: 39326.327155455874,
-  critDamage: 75620.90052860038,
-  expectedDamage: 63563.84325404177,
+  timestamp: '2025-08-29T06:31:39.647Z',
+  nonCritDamage: 30787.830940798955,
+  critDamage: 55879.9131575501,
+  expectedDamage: 47544.323445145375,
   critRate: 66.78,
 }
