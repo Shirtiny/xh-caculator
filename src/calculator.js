@@ -37,12 +37,22 @@ function scanConfigFiles() {
 
 // 获取配置文件显示名称
 function getConfigDisplayName(filename) {
-  const nameMap = {
-    'normal.json5': '普通配置',
-    'normal80.json5': '普通80级配置',
-    'zhizhumutou.json5': '蜘蛛牧头配置'
-  };
-  return nameMap[filename] || filename;
+  const configPath = path.join('./config', filename);
+
+  try {
+    if (fs.existsSync(configPath)) {
+      const configData = fs.readFileSync(configPath, "utf8");
+      const config = JSON5.parse(configData);
+
+      // 从配置文件中读取 name 字段，如果没有则返回空字符串
+      return config.name || "";
+    }
+  } catch (error) {
+    console.warn(`读取配置文件 ${filename} 失败: ${error.message}`);
+  }
+
+  // 如果读取失败，返回空字符串
+  return "";
 }
 
 // 读取配置文件
@@ -289,4 +299,5 @@ module.exports = {
   calculateDamage,
   loadConfig,
   main,
+  getConfigDisplayName,
 };
