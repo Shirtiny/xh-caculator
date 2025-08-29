@@ -1,0 +1,23 @@
+{
+  "name": "xh-caculator",
+  "version": "1.0.0",
+  "description": "雷影剑士居合流伤害计算器",
+  "main": "damage_calculator.js",
+  "scripts": {
+    "start": "node damage_calculator.js",
+    "test": "node damage_calculator.js"
+  },
+  "keywords": [
+    "damage-calculator",
+    "game",
+    "calculator"
+  ],
+  "author": "阿策",
+  "license": "MIT",
+  "dependencies": {
+    "json5": "^2.2.3"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

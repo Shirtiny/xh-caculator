@@ -1,10 +1,11 @@
 /**
- * 雷影剑士居合流伤害计算器 - 独立JavaScript版本
  * 基于index.html中的calculateDamage函数实现
  */
 
+const JSON5 = require('json5');
+
 // 读取配置文件
-function loadConfig(configPath = "./normal.json") {
+function loadConfig(configPath = "./normal80.json5") {
   const fs = require("fs");
 
   if (!fs.existsSync(configPath)) {
@@ -14,7 +15,7 @@ function loadConfig(configPath = "./normal.json") {
 
   try {
     const configData = fs.readFileSync(configPath, "utf8");
-    return JSON.parse(configData);
+    return JSON5.parse(configData);
   } catch (error) {
     console.error(`读取配置文件失败: ${error.message}`);
     return null;
@@ -22,7 +23,7 @@ function loadConfig(configPath = "./normal.json") {
 }
 
 // 读取历史记录
-function loadHistory(historyPath = "./damage_history.json") {
+function loadHistory(historyPath = "./damage_history.json5") {
   const fs = require("fs");
 
   if (!fs.existsSync(historyPath)) {
@@ -31,7 +32,7 @@ function loadHistory(historyPath = "./damage_history.json") {
 
   try {
     const historyData = fs.readFileSync(historyPath, "utf8");
-    return JSON.parse(historyData);
+    return JSON5.parse(historyData);
   } catch (error) {
     console.error(`读取历史记录失败: ${error.message}`);
     return null;
@@ -39,7 +40,7 @@ function loadHistory(historyPath = "./damage_history.json") {
 }
 
 // 保存历史记录
-function saveHistory(result, historyPath = "./damage_history.json") {
+function saveHistory(result, historyPath = "./damage_history.json5") {
   const fs = require("fs");
 
   const history = {
@@ -51,7 +52,7 @@ function saveHistory(result, historyPath = "./damage_history.json") {
   };
 
   try {
-    fs.writeFileSync(historyPath, JSON.stringify(history, null, 2));
+    fs.writeFileSync(historyPath, JSON5.stringify(history, null, 2));
     console.log(`历史记录已保存到 ${historyPath}`);
   } catch (error) {
     console.error(`保存历史记录失败: ${error.message}`);
@@ -321,11 +322,12 @@ function calculateDamage(config = null) {
   // 计算防御修正系数
   let defenseFactor = 6500 / (monsterDefense + 6500);
   let critDefenseFactor = defenseFactor;
+  // 破斩
   if (activeSkill === 1 && talent6) {
     critDefenseFactor = 6500 / (monsterDefense * 0.7 + 6500);
   }
 
-  // 计算雷之印增伤比例
+  // 疾电破袭 计算雷之印增伤比例
   let thunderSealMulti = talent3 ? 0.28 : 0.25;
   // 回溯冥想效果：降低雷之印增伤比例
   if (talent11) {
