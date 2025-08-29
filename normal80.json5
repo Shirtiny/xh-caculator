@@ -161,7 +161,7 @@
   "module5Enabled": false,
 
   // 模组5等级：5级(易伤+6.6%), 6级(易伤+11%)
-  "module5Level": "5",
+  "module5Level": "6",
 
   // 模组6：极·灵活身法 - 启用状态
   "module6Enabled": true,
@@ -174,7 +174,7 @@
   "buff3Enabled": false,
 
   // 增益3数值：易伤伤害%+X
-  "buff3Value": "10",
+  "buff3Value": "16",
 
   // 增益4：山贼头目 - 启用状态
   "buff4Enabled": false,
