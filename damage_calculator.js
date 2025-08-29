@@ -4,7 +4,7 @@
  */
 
 // 读取配置文件
-function loadConfig(configPath = "./zhizhumutou.json") {
+function loadConfig(configPath = "./normal.json") {
   const fs = require("fs");
 
   if (!fs.existsSync(configPath)) {
