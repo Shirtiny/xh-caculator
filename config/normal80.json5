@@ -1,192 +1,192 @@
 {
   // ===== 配置信息 =====
   // 配置文件显示名称
-  "name": "普通80级配置",
+  name: "蒂娜80级配置",
 
   // ===== 基础属性配置 =====
   // 物理攻击力：影响物理伤害的基础数值
-  "physAtk": "2105",
+  physAtk: "2707",
 
   // 元素攻击力：影响元素伤害的基础数值
-  "elemAtk": "45",
+  elemAtk: "45",
 
   // 精炼攻击力：通过精炼获得的额外攻击力
-  "refineAtk": "324",
+  refineAtk: "384",
 
   // 精通属性值：影响雷之印增伤的基础属性（80级配置）
-  "mastery": "47",
+  mastery: "40",
+
+  // 天赋11：回溯冥想 - 无穷回豆翻倍，雷之印效果-12.5%
+  talent11: false,
 
   // 雷之印层数：最大6层，每层提供25%增伤
-  "thunderSeal": "6",
+  thunderSeal: "6",
 
   // ===== 公共乘区属性 =====
   // 近距离伤害加成百分比：对近战技能生效
-  "meleeDmg": "0",
+  meleeDmg: "0",
 
   // 首领伤害加成百分比：对首领类型怪物生效
-  "bossDmg": "0",
+  bossDmg: "0",
 
   // 易伤伤害加成百分比：对易伤状态的怪物生效
-  "vulnDmg": "0",
+  vulnDmg: "0",
 
   // 技能伤害加成百分比：对所有技能生效
-  "skillDmg": "0",
+  skillDmg: "0",
 
   // 物理伤害加成百分比：对物理伤害生效
-  "physDmg": "0",
+  physDmg: "0",
 
   // ===== 独立乘区属性 =====
   // 全能属性值：提供0.35%的伤害加成（80级配置）
-  "allRound": "30",
+  allRound: "10",
 
   // 元素加成百分比：对元素伤害生效
-  "elemBonus": "0",
+  elemBonus: "0",
 
   // 暴击伤害加成百分比：基础值为50%
-  "critDmg": "80",
+  critDmg: "80",
 
   // 暴击率百分比：基础值为5%
-  "critRate": "44.78",
+  critRate: "55",
 
   // ===== 技能选择配置 =====
   // 当前激活的技能：1=居合斩, 2=一闪, 3=自定义
-  "activeSkill": "1",
+  activeSkill: "1",
 
   // 居合斩技能倍率百分比
-  "skill1Multi": "210",
+  skill1Multi: "210",
 
   // 居合斩附加伤害
-  "skill1Add": "600",
+  skill1Add: "600",
 
   // 一闪技能倍率百分比
-  "skill2Multi": "490",
+  skill2Multi: "490",
 
   // 一闪附加伤害
-  "skill2Add": "1400",
+  skill2Add: "1400",
 
   // 自定义技能倍率百分比
-  "skill3Multi": "700",
+  skill3Multi: "700",
 
   // 自定义技能附加伤害
-  "skill3Add": "0",
+  skill3Add: "0",
 
   // ===== 循环模拟配置 =====
   // 居合斩释放次数（用于循环伤害计算）
-  "skill1Count": "10",
+  skill1Count: "10",
 
   // 一闪释放次数（用于循环伤害计算）
-  "skill2Count": "5",
+  skill2Count: "5",
 
   // 自定义技能释放次数（用于循环伤害计算）
-  "skill3Count": "1",
+  skill3Count: "1",
 
   // ===== 天赋系统配置 =====
   // 天赋1：居合流 - 居合斩+雷之印=6时，技能伤害+12%
-  "talent1": true,
+  talent1: true,
 
   // 天赋2：居合天授＆暴斩 - 居合斩时，暴击+22%，超额转化为暴伤
-  "talent2": true,
+  talent2: true,
 
   // 天赋3：疾电破袭 - 雷之印增伤从25%变为28%
-  "talent3": false,
+  talent3: false,
 
   // 天赋4：雷咒 - 每层易伤+2%，可叠4层
-  "talent4": true,
+  talent4: true,
 
   // 天赋4层数：1-4层
-  "talent4Level": "4",
+  talent4Level: "4",
 
   // 天赋5：瞬斩 - 每层怪物防御-6%，可叠5层
-  "talent5": true,
+  talent5: true,
 
   // 天赋5层数：1-5层
-  "talent5Level": "5",
+  talent5Level: "5",
 
   // 天赋6：破斩 - 居合斩暴击时，怪物防御×0.7
-  "talent6": true,
+  talent6: true,
 
   // 天赋7：雷返 - 元素加成+10%
-  "talent7": true,
+  talent7: true,
 
   // 天赋8：暴裂 - 暴击伤害+10%（面板已包含）
-  "talent8": false,
+  talent8: false,
 
   // 天赋10：雷印亲和 - 每1个雷之印，元素加成+1.5%
-  "talent10": true,
-
-  // 天赋11：回溯冥想 - 无穷回豆翻倍，雷之印效果-12.5%
-  "talent11": false,
+  talent10: true,
 
   // 天赋12：锐击＆刀意双绝 - 启用一闪时暴击%+20%
-  "talent12": true,
+  talent12: true,
 
   // 天赋13：追击风袭上＆下 - 所有暴击×1.24
-  "talent13": false,
+  talent13: false,
 
   // 天赋14：精进 - 基础技能乘区的精通%+6%（面板已包含）
-  "talent14": false,
+  talent14: false,
 
   // ===== 套装系统配置 =====
   // 武器套装：暴击伤害+15%（面板已包含）
-  "weaponSet": false,
+  weaponSet: false,
 
   // 2件套：启用居合斩时，技能伤害%+10%
-  "twoPieceSet": true,
+  twoPieceSet: true,
 
   // 4件套：技能伤害+6%（需释放一次6豆居合）
-  "fourPieceSet": true,
+  fourPieceSet: true,
 
   // ===== 模组系统配置 =====
   // 模组1：敏捷加持 - 启用状态
-  "module1Enabled": true,
+  module1Enabled: true,
 
   // 模组1等级：5级(物理伤害+3.6%), 6级(物理伤害+6%)
-  "module1Level": "6",
+  module1Level: "6",
 
   // 模组2：特攻伤害加持 - 启用状态
-  "module2Enabled": true,
+  module2Enabled: true,
 
   // 模组2等级：5级(居合斩元素+7.2%), 6级(居合斩元素+12%)
-  "module2Level": "6",
+  module2Level: "6",
 
   // 模组3：精英打击 - 启用状态
-  "module3Enabled": false,
+  module3Enabled: false,
 
   // 模组3等级：5级(精英及首领伤害+3.9%), 6级(精英及首领伤害+6.6%)
-  "module3Level": "5",
+  module3Level: "5",
 
   // 模组4：暴击专注 - 启用状态
-  "module4Enabled": false,
+  module4Enabled: false,
 
   // 模组4等级：不同等级提供不同元素加成和暴伤加成
-  "module4Level": "5",
+  module4Level: "5",
 
   // 模组5：极·伤害叠加 - 启用状态
-  "module5Enabled": false,
+  module5Enabled: false,
 
   // 模组5等级：5级(易伤+6.6%), 6级(易伤+11%)
-  "module5Level": "6",
+  module5Level: "6",
 
   // 模组6：极·灵活身法 - 启用状态
-  "module6Enabled": true,
+  module6Enabled: true,
 
   // 模组6等级：5级(物理攻击×1.06), 6级(物理攻击×1.1)
-  "module6Level": "6",
+  module6Level: "6",
 
   // ===== 增益系统配置 =====
   // 增益3：剧毒蜂巢 - 启用状态
-  "buff3Enabled": false,
+  buff3Enabled: true,
 
   // 增益3数值：易伤伤害%+X
-  "buff3Value": "16",
+  buff3Value: "16",
 
   // 增益4：山贼头目 - 启用状态
-  "buff4Enabled": false,
+  buff4Enabled: false,
 
   // 增益4数值：物理攻击%×X
-  "buff4Value": "1.1",
+  buff4Value: "1.3",
 
   // ===== 其他配置 =====
   // 首领伤害开关：启用时计算精英/首领伤害加成
-  "bossDmgToggle": false
+  bossDmgToggle: false,
 }
