@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "计算器",
   "scripts": {
-    "calc": "node ./src/calculator.js"
+    "calc": "node ./src/calculator.js",
+    "to-json": "node convert-json5.js"
   },
   "keywords": [
     "damage-calculator",
