@@ -280,7 +280,7 @@ function calculateDamage(config = null) {
   const thunderMasteryMulti =
     1 + thunderSeal * thunderSealMulti + mastery * 0.025;
 
-  // 普通目标的公共乘数
+  // 公共乘区总加成
   const normalPublicMultiplier =
     1 + (meleeDmg + currentBossDmg + vulnDmg + skillDmg + physDmg) / 100;
 
